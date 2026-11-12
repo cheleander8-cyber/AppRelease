@@ -1,0 +1,12 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp" android:height="108dp"
+    android:viewportWidth="108" android:viewportHeight="108">
+    <!-- hintere Sprechblase -->
+    <path android:fillColor="@color/icon_acc"
+        android:pathData="M55,47h21a7,7 0,0 1,7 7v12a7,7 0,0 1,-7 7h-2l3,9l-12,-9h-10a7,7 0,0 1,-7 -7v-12a7,7 0,0 1,7 -7z"/>
+    <!-- vordere Sprechblase -->
+    <path android:fillColor="@color/icon_fg"
+        android:pathData="M33,27h30a8,8 0,0 1,8 8v15a8,8 0,0 1,-8 8h-17l-12,10l2,-10h-3a8,8 0,0 1,-8 -8v-15a8,8 0,0 1,8 -8z"/>
+    <path android:fillColor="@color/icon_bg"
+        android:pathData="M40,42.5m-3,0a3,3 0,1 1,6 0a3,3 0,1 1,-6 0 M48,42.5m-3,0a3,3 0,1 1,6 0a3,3 0,1 1,-6 0 M56,42.5m-3,0a3,3 0,1 1,6 0a3,3 0,1 1,-6 0"/>
+</vector>

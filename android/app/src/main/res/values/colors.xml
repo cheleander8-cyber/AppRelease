@@ -1,0 +1,6 @@
+<resources>
+    <color name="bg">#f6f1e9</color>
+    <color name="icon_bg">#0f6b66</color>
+    <color name="icon_fg">#fffdf9</color>
+    <color name="icon_acc">#d0643a</color>
+</resources>

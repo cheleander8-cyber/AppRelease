@@ -1,0 +1,2079 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Smalltalk-Trainer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f6f1e9; --card:#fffdf9; --ink:#1f2a2e; --muted:#6b7478; --line:#e6ddd0;
+  --acc:#0f6b66; --acc2:#d0643a; --accSoft:#dcefe9; --acc2Soft:#f8e3d7;
+  --ok:#2f8f4e; --okSoft:#dff1e3; --bad:#c2453a; --badSoft:#f9e0dd;
+  --shadow:0 1px 2px rgba(30,30,20,.06),0 4px 14px rgba(30,30,20,.06);
+}
+@media (prefers-color-scheme: dark){
+  :root{ --bg:#141a1c; --card:#1d2528; --ink:#eef0ee; --muted:#9aa5a8; --line:#2d3a3e;
+    --acc:#4fc2b4; --acc2:#f08a5d; --accSoft:#1f3b3a; --acc2Soft:#3d2a22;
+    --ok:#5cc47a; --okSoft:#1f3a29; --bad:#ef7a6e; --badSoft:#3e2422; --shadow:none; }
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:Nunito,system-ui,sans-serif;-webkit-tap-highlight-color:transparent}
+body{padding:env(safe-area-inset-top) env(safe-area-inset-right) calc(76px + env(safe-area-inset-bottom)) env(safe-area-inset-left)}
+button{font:inherit;color:inherit;cursor:pointer;border:none;background:none}
+.wrap{max-width:680px;margin:0 auto;padding:14px 16px}
+header.top{display:flex;align-items:center;gap:10px;padding:14px 16px 4px;max-width:680px;margin:0 auto}
+header.top h1{font-size:20px;margin:0;font-weight:800;letter-spacing:-.2px}
+header.top h1 span{color:var(--acc2)}
+.langs{display:flex;gap:8px;overflow-x:auto;padding:8px 16px 10px;max-width:680px;margin:0 auto;scrollbar-width:none}
+.langs::-webkit-scrollbar{display:none}
+.chip{flex:none;padding:8px 14px;border-radius:999px;background:var(--card);border:1.5px solid var(--line);font-weight:700;font-size:14px;white-space:nowrap}
+.chip small{font-weight:600;color:var(--muted);margin-left:4px}
+.chip.on{background:var(--acc);border-color:var(--acc);color:#fff}
+.chip.on small{color:#ffffffcc}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow)}
+.tip{padding:12px 14px;font-size:14px;color:var(--muted);margin-bottom:12px}
+.tip b{color:var(--ink)}
+.due{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 16px;margin-bottom:14px;background:var(--acc2Soft);border-color:transparent}
+.due b{font-size:16px}
+.btn{padding:10px 16px;border-radius:12px;background:var(--acc);color:#fff;font-weight:800}
+.btn.alt{background:var(--acc2)}
+.btn.ghost{background:transparent;color:var(--acc);border:1.5px solid var(--acc)}
+.btn.small{padding:7px 12px;font-size:14px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(min-width:560px){.grid{grid-template-columns:1fr 1fr 1fr}}
+.scn{text-align:left;padding:14px;display:flex;flex-direction:column;gap:6px;min-height:118px}
+.scn .ic{font-size:26px}
+.scn .tt{font-weight:800;font-size:15px;line-height:1.2}
+.scn .meta{font-size:12px;color:var(--muted);margin-top:auto}
+.bar{height:6px;border-radius:9px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--acc);border-radius:9px}
+.sec{font-size:13px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin:18px 2px 8px}
+.back{display:flex;align-items:center;gap:8px;font-weight:800;color:var(--acc);padding:4px 0 10px}
+.scnHead{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.scnHead .ic{font-size:32px}
+.scnHead h2{margin:0;font-size:21px}
+.tabs{display:flex;gap:6px;background:var(--card);border:1px solid var(--line);padding:4px;border-radius:14px;margin-bottom:14px;overflow-x:auto}
+.tab{flex:1;padding:9px 8px;border-radius:10px;font-weight:800;font-size:14px;white-space:nowrap;color:var(--muted)}
+.tab.on{background:var(--accSoft);color:var(--acc)}
+.tools{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;align-items:center}
+.toggle{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:700;color:var(--muted);padding:6px 10px;border-radius:10px;border:1.5px solid var(--line);background:var(--card)}
+.toggle.on{color:var(--acc);border-color:var(--acc)}
+.phrase{padding:14px 14px 12px;margin-bottom:10px;display:flex;gap:10px;align-items:flex-start}
+.phrase .txt{flex:1;min-width:0}
+.tgt{font-size:19px;font-weight:800;line-height:1.3}
+.tgt[dir=rtl]{font-size:23px;text-align:right}
+.rom{font-size:14px;color:var(--acc);font-weight:700;margin-top:2px}
+.de{font-size:14px;color:var(--muted);margin-top:4px}
+.hidden-tgt .tgt,.hidden-tgt .rom{filter:blur(7px);user-select:none}
+.ibtns{display:flex;flex-direction:column;gap:6px}
+.ib{width:38px;height:38px;border-radius:12px;background:var(--accSoft);color:var(--acc);font-size:17px;display:grid;place-items:center}
+.ib.star{background:transparent;border:1.5px solid var(--line);color:var(--muted)}
+.ib.star.on{background:var(--acc2Soft);border-color:var(--acc2);color:var(--acc2)}
+.chat{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+.bub{max-width:86%;padding:10px 12px;border-radius:16px;position:relative}
+.bub.p{align-self:flex-start;background:var(--card);border:1px solid var(--line);border-bottom-left-radius:6px}
+.bub.u{align-self:flex-end;background:var(--acc);color:#fff;border-bottom-right-radius:6px}
+.bub.u .rom,.bub.u .de{color:#ffffffd0}
+.bub .tgt{font-size:17px}
+.bub .row{display:flex;gap:8px;align-items:flex-start}
+.bub .mini{flex:none;width:30px;height:30px;border-radius:9px;background:var(--accSoft);color:var(--acc);font-size:14px;display:grid;place-items:center}
+.bub.u .mini{background:#ffffff26;color:#fff}
+.reveal{font-size:13px;font-weight:800;color:var(--acc);margin-top:4px}
+.corr{align-self:flex-end;max-width:86%;font-size:13px;background:var(--acc2Soft);border-radius:12px;padding:8px 10px;color:var(--ink)}
+.corr b{color:var(--acc2)}
+.prompt{padding:12px 14px;margin-bottom:10px;font-size:15px}
+.prompt b{display:block;font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px}
+.opts{display:flex;flex-direction:column;gap:8px}
+.opt{text-align:left;padding:13px 14px;border-radius:14px;background:var(--card);border:1.5px solid var(--line);font-weight:700;font-size:16px}
+.opt .rom{font-size:13px}
+.opt.ok{background:var(--okSoft);border-color:var(--ok)}
+.opt.bad{background:var(--badSoft);border-color:var(--bad)}
+.shake{animation:sh .35s}
+@keyframes sh{20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+.qhead{display:flex;justify-content:space-between;font-size:13px;font-weight:800;color:var(--muted);margin-bottom:8px}
+.qcard{padding:18px 16px;margin-bottom:12px;text-align:center}
+.qcard .tgt{font-size:22px}
+.qcard .tgt[dir=rtl]{text-align:center}
+.qcard .lbl{font-size:13px;color:var(--muted);font-weight:700;margin-bottom:8px}
+.done{padding:22px 16px;text-align:center}
+.done .big{font-size:42px}
+.done h3{margin:6px 0}
+.fc{padding:26px 18px;text-align:center;min-height:220px;display:flex;flex-direction:column;justify-content:center;gap:8px}
+.fc .de{font-size:20px;color:var(--ink);font-weight:800}
+.fc .tgt{font-size:24px;color:var(--acc)}
+.fc .tgt[dir=rtl]{text-align:center}
+.rowbtn{display:flex;gap:10px;margin-top:12px}
+.rowbtn .btn{flex:1;padding:14px}
+.btn.bad{background:var(--bad)} .btn.ok{background:var(--ok)}
+.composer{display:flex;gap:8px;align-items:flex-end;position:sticky;bottom:calc(78px + env(safe-area-inset-bottom));background:var(--bg);padding:8px 0}
+.composer textarea{flex:1;resize:none;font:inherit;font-size:16px;padding:11px 12px;border-radius:14px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);min-height:46px;max-height:120px}
+.sugs{display:flex;gap:6px;flex-wrap:wrap;margin:4px 0 6px}
+.sug{padding:7px 11px;border-radius:12px;background:var(--accSoft);color:var(--acc);font-weight:700;font-size:14px;text-align:left}
+.sug small{display:block;font-weight:600;color:var(--muted);font-size:12px}
+.typing{align-self:flex-start;color:var(--muted);font-size:14px;padding:6px 4px}
+nav.bot{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);display:flex;justify-content:center;padding-bottom:env(safe-area-inset-bottom);z-index:5}
+nav.bot div{display:flex;max-width:680px;width:100%}
+nav.bot button{flex:1;padding:10px 4px 9px;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:12px;font-weight:800;color:var(--muted);position:relative}
+nav.bot button .i{font-size:21px}
+nav.bot button.on{color:var(--acc)}
+.badge{position:absolute;top:5px;left:calc(50% + 6px);background:var(--acc2);color:#fff;border-radius:999px;font-size:11px;padding:1px 6px}
+.set{padding:14px 16px;margin-bottom:10px}
+.set label{display:flex;justify-content:space-between;align-items:center;font-weight:700;gap:12px}
+.set p{margin:6px 0 0;font-size:13px;color:var(--muted)}
+input[type=range]{width:100%;accent-color:var(--acc);margin-top:10px}
+input[type=checkbox]{width:22px;height:22px;accent-color:var(--acc)}
+.modal{position:fixed;inset:0;background:#0007;display:grid;place-items:center;z-index:20;padding:20px}
+.modal .card{padding:18px;max-width:360px}
+.muted{color:var(--muted)}
+.empty{padding:26px 18px;text-align:center}
+.scn.locked{opacity:.55;filter:grayscale(1)}
+.stars{letter-spacing:1px}.stars .so{opacity:.22;filter:grayscale(1)}
+.hero{display:flex;justify-content:space-around;padding:14px 8px;margin-bottom:10px}
+.hstat{text-align:center}.hstat b{display:block;font-size:24px;font-weight:800}.hstat span{font-size:12px;color:var(--muted);font-weight:700}
+.goal{display:flex;gap:12px;align-items:center;padding:12px 14px;margin-bottom:12px;border:2px solid var(--acc)}
+.goal .gi{font-size:34px}.goal .gl{font-size:11px;font-weight:800;color:var(--acc);letter-spacing:.5px}
+.due{padding:12px 14px}
+.lockban{padding:12px 14px;margin-bottom:12px;background:var(--acc2Soft);border-color:transparent}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 10px}
+.wchip{padding:4px 9px;border-radius:999px;background:var(--card);font-weight:700;font-size:13px}
+#toast{position:fixed;left:50%;top:calc(12px + env(safe-area-inset-top));transform:translate(-50%,-160%);background:var(--ink);color:var(--bg);padding:11px 16px;border-radius:14px;font-weight:800;z-index:30;transition:transform .35s;max-width:92%;text-align:center;box-shadow:0 6px 20px rgba(0,0,0,.25)}
+#toast.show{transform:translate(-50%,0)}
+.mem{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.mc{min-height:86px;border-radius:14px;background:var(--acc);color:#fff;font-weight:800;font-size:16px;padding:6px;display:grid;place-items:center;text-align:center;line-height:1.2}
+.mc.open{background:var(--card);color:var(--ink);border:1.5px solid var(--line)}
+.mc.done{background:var(--okSoft);color:var(--ok);border:1.5px solid var(--ok)}
+.mc.de.open,.mc.de.done{font-weight:600;font-size:14px}
+.tile.lt{min-width:42px;text-align:center;font-size:20px}
+.hword{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;font-size:26px;font-weight:800;margin:12px 0 4px}
+.hl{min-width:22px;border-bottom:3px solid var(--ink);text-align:center;line-height:1.2}
+.hl.sp{border:none;min-width:10px}
+.kb{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+.kb button{padding:11px 0;border-radius:10px;background:var(--card);border:1.5px solid var(--line);font-weight:800;font-size:17px}
+.kb button.hit{background:var(--okSoft);border-color:var(--ok);color:var(--ok)}
+.kb button.miss{opacity:.3}
+.xw{display:grid;gap:3px;margin:0 auto 14px}
+.xc{aspect-ratio:1;border-radius:6px;background:var(--card);border:1.5px solid var(--line);position:relative;display:grid;place-items:center;padding:0;font-weight:800;font-size:clamp(13px,4.2vw,20px);text-transform:uppercase}
+.xc.empty{background:transparent;border:none}
+.xc.cur{border-color:var(--acc);background:var(--accSoft)}
+.xc.solved{background:var(--okSoft);border-color:var(--ok);color:var(--ok)}
+.xc.good{color:var(--ok)}.xc.wrong{color:var(--bad);border-color:var(--bad)}
+.xn{position:absolute;top:1px;left:3px;font-size:9px;font-weight:800;color:var(--muted)}
+.xclues{display:flex;flex-direction:column;gap:6px}
+.xclue{text-align:left;padding:9px 12px;border-radius:12px;background:var(--card);border:1.5px solid var(--line);font-weight:600;font-size:14px}
+.xclue.on{border-color:var(--acc);background:var(--accSoft)}
+.xclue.done{opacity:.55}
+.chars{display:flex;flex-wrap:wrap;gap:5px;margin:6px 0 0}
+.chars .tile{min-width:38px;padding:6px 8px;font-size:17px}
+.gtab{width:100%;border-collapse:collapse}
+.gtab td,.gtab th{padding:9px 6px;border-bottom:1px solid var(--line);text-align:left;font-size:15px}
+.gtab th{font-size:12px;color:var(--muted)}
+.gtab td.t{font-weight:800}.gtab td.g{color:var(--muted);font-size:14px}
+.gtab tr:last-child td{border-bottom:none}
+.gtip{margin-top:10px;font-size:14px;font-weight:700;background:var(--accSoft);color:var(--acc);border-radius:10px;padding:8px 10px}
+.gsent{font-size:22px;font-weight:800;line-height:1.5}
+.blank{display:inline-block;min-width:64px;border-bottom:3px solid var(--acc)}
+.field{min-height:60px;padding:10px;border:2px dashed var(--line);border-radius:16px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:12px;background:var(--card)}
+.field .ph{color:var(--muted);font-size:14px}
+.field.ok{border-color:var(--ok);border-style:solid;background:var(--okSoft)}
+.field.bad{border-color:var(--bad)}
+.pool{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.tile{padding:9px 13px;border-radius:12px;background:var(--card);border:1.5px solid var(--line);border-bottom-width:3px;font-weight:800;font-size:17px}
+.field .tile{background:var(--accSoft);border-color:var(--acc);color:var(--acc)}
+.tile:active{transform:translateY(1px)}
+.tile.good{background:var(--okSoft)!important;border-color:var(--ok)!important;color:var(--ok)!important}
+.tile.wrong{background:var(--badSoft)!important;border-color:var(--bad)!important;color:var(--bad)!important;text-decoration:line-through}
+.fb{padding:10px 12px;border-radius:12px;font-weight:800;margin-bottom:12px}
+.fb.good{background:var(--okSoft);color:var(--ok)}
+.fb.bad{background:var(--badSoft);color:var(--bad)}
+.fb .tgt{color:var(--ink)}
+.kchip{display:inline-block;margin-top:8px;font-size:12px;font-weight:800;padding:3px 9px;border-radius:999px;background:var(--accSoft);color:var(--acc)}
+.sol{font-size:14px;margin:-4px 0 12px;padding:8px 12px;border-radius:12px;background:var(--acc2Soft)}
+.wlist{padding:2px 0;margin-bottom:12px}
+.wrow{display:flex;align-items:center;gap:10px;padding:9px 12px;border-bottom:1px solid var(--line)}
+.wrow:last-child{border-bottom:none}
+.wrow .w{font-weight:800;font-size:17px;min-width:96px}
+.wrow .g{flex:1;font-size:14px;color:var(--muted)}
+.inf{font-size:12px;font-weight:600;color:var(--muted);line-height:1.1;margin-bottom:1px}
+.wrow .ib{width:34px;height:34px;font-size:15px}
+.fsel{font:inherit;font-size:13px;font-weight:700;padding:6px 4px;border-radius:10px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);max-width:84px}
+.seg{display:flex;gap:6px;margin-top:10px}
+.seg button{flex:1;padding:10px 6px;border-radius:12px;border:1.5px solid var(--line);background:var(--card);font-weight:800;font-size:14px}
+.seg button small{display:block;font-weight:600;font-size:12px;color:var(--muted)}
+.seg button.on{border-color:var(--acc);background:var(--accSoft);color:var(--acc)}
+.kasten{display:flex;gap:5px;align-items:flex-end;padding:10px 8px 8px;margin:12px 0 10px;border-radius:14px;background:linear-gradient(180deg,#c99d6e,#9f7246);box-shadow:inset 0 -3px 0 rgba(0,0,0,.18)}
+.fach{position:relative;min-width:0;border-radius:7px;background:#f6eedf;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:12px;box-shadow:inset 0 3px 6px rgba(0,0,0,.18)}
+.fach::before{content:"";position:absolute;top:0;left:0;right:0;height:5px;background:var(--fc)}
+.fach .cards{position:absolute;left:4px;right:4px;bottom:0;border-radius:4px 4px 0 0;background:repeating-linear-gradient(to top,#ffffff 0 4px,#ddd0bc 4px 5px)}
+.fach .num{position:relative;z-index:1;font-size:21px;font-weight:800;color:#3b2a1a;background:#f6eedfcc;border-radius:8px;padding:0 4px}
+.fach .fl{position:relative;z-index:1;font-size:10.5px;font-weight:800;color:#6b5540;white-space:nowrap}
+.fach.on{outline:3px solid var(--acc);outline-offset:1px}
+.kasten.static .fach{pointer-events:none}
+.f0{--fc:#d9534f}.f1{--fc:#ee8a3c}.f2{--fc:#e9c13b}.f3{--fc:#a6c94b}.f4{--fc:#4cb27a}.f5{--fc:#2b8f8a}
+.fchip{display:inline-block;font-size:12px;font-weight:800;padding:2px 8px;border-radius:999px;color:#fff;background:var(--fc)}
+.r3 .btn{padding:12px 6px;font-size:14px;line-height:1.2}
+.r3 .btn small{display:block;font-weight:600;font-size:11px;opacity:.9}
+</style>
+</head>
+<body>
+<header class="top"><h1>Smalltalk<span>·</span>Trainer</h1></header>
+<div class="langs" id="langs"></div>
+<main class="wrap" id="app"></main>
+<nav class="bot"><div>
+  <button data-v="home"><span class="i">🗺️</span>Lernen</button>
+  <button data-v="words"><span class="i">📚</span>Wörter</button>
+  <button data-v="games"><span class="i">🎮</span>Spiele</button>
+  <button data-v="review"><span class="i">🔁</span>Wiederholen<span class="badge" id="dueBadge" hidden></span></button>
+  <button data-v="settings"><span class="i">⚙️</span>Einstellungen</button>
+</div></nav>
+<div id="modal"></div>
+<div id="toast"></div>
+
+<script>
+/* ============ Szenarien (gemeinsam) ============ */
+const SCN = {
+  greet:{ic:"👋",t:"Begrüßen & Vorstellen",role:"eine freundliche Person, die der Lernende gerade kennenlernt (z. B. auf einer Terrasse)"},
+  me:   {ic:"🙋",t:"Über mich erzählen",role:"ein neugieriger Einheimischer, der wissen will, wer der Lernende ist, woher er kommt und was er macht"},
+  cafe: {ic:"☕",t:"Café & Bar",role:"Bedienung in einem Café bzw. einer Bar"},
+  rest: {ic:"🍽️",t:"Im Restaurant",role:"Kellner/Kellnerin in einem einfachen Restaurant"},
+  shop: {ic:"🛒",t:"Einkaufen & Markt",role:"Verkäufer/in an einem Marktstand"},
+  way:  {ic:"🧭",t:"Nach dem Weg fragen",role:"Passant/in auf der Straße, der/die den Weg erklärt"},
+  talk: {ic:"☀️",t:"Wetter & Smalltalk",role:"Einheimische/r, der/die neben dem Lernenden auf einer Parkbank sitzt und plaudern möchte"},
+  hobby:{ic:"🎒",t:"Hobbys & Freizeit",role:"neue Bekanntschaft in einer Bar, die über Freizeit und Reisen plaudert"},
+  camp: {ic:"🚐",t:"Camping & Unterkunft",role:"Mitarbeiter/in an der Rezeption eines Campingplatzes"},
+  help: {ic:"🆘",t:"Wenn's hakt: Verständigung",role:"Einheimische/r, der/die anfangs etwas zu schnell spricht; reagiere geduldig, wenn der Lernende um Wiederholung bittet"},
+  bye:  {ic:"🤝",t:"Verabschieden & Verabreden",role:"neue Bekanntschaft, mit der man sich verabschiedet und vielleicht wieder verabredet"}
+};
+
+/* ============ Sprachdaten ============
+   Satz: [Zielsprache, Deutsch, Umschrift?]   Dialog: ["p"|"u", Zielsprache, Deutsch, Umschrift?] */
+const L = {
+es:{name:"Spanisch",native:"Español",code:"es-ES",
+ tip:"<b>Tipp:</b> In Spanien duzt man fast immer (<i>tú</i>). <i>Usted</i> nur bei Älteren oder sehr förmlich. Wo „/a“ steht: -o für Männer, -a für Frauen.",
+ order:["greet","me","cafe","rest","shop","way","talk","hobby","camp","help","bye"],
+ s:{
+ greet:{ph:[
+  ["¡Hola! ¿Qué tal?","Hallo! Wie geht's?"],
+  ["Buenos días.","Guten Morgen / Guten Tag (bis ca. 14 Uhr)."],
+  ["Buenas tardes.","Guten Tag (nachmittags)."],
+  ["Buenas noches.","Guten Abend / Gute Nacht."],
+  ["Muy bien, gracias. ¿Y tú?","Sehr gut, danke. Und dir?"],
+  ["Más o menos.","Geht so."],
+  ["Me llamo Rumi. ¿Cómo te llamas?","Ich heiße Rumi. Wie heißt du?"],
+  ["Encantado. / Encantada.","Freut mich. (m / w)"],
+  ["Mucho gusto.","Sehr erfreut."],
+  ["¿Cómo está usted?","Wie geht es Ihnen? (förmlich)"]],
+  dlg:[["p","¡Hola! ¿Qué tal?","Hallo! Wie geht's?"],
+   ["u","Muy bien, gracias. ¿Y tú?","Sehr gut, danke. Und dir?"],
+   ["p","Bien también. Me llamo Lucía. ¿Cómo te llamas?","Auch gut. Ich heiße Lucía. Wie heißt du?"],
+   ["u","Me llamo Rumi. Encantado.","Ich heiße Rumi. Freut mich."],
+   ["p","¡Encantada! ¿De dónde eres?","Freut mich! Woher kommst du?"],
+   ["u","Soy de Alemania.","Ich komme aus Deutschland."],
+   ["p","¡Qué bien! Bienvenido.","Wie schön! Willkommen."],
+   ["u","¡Muchas gracias!","Vielen Dank!"]]},
+ me:{ph:[
+  ["¿De dónde eres?","Woher kommst du?"],
+  ["Soy de Alemania, del norte.","Ich komme aus Deutschland, aus dem Norden."],
+  ["Vivo en un pueblo cerca de Kiel.","Ich wohne in einem Dorf in der Nähe von Kiel."],
+  ["¿A qué te dedicas?","Was machst du beruflich?"],
+  ["Trabajo con árboles. Soy arborista.","Ich arbeite mit Bäumen. Ich bin Baumpfleger."],
+  ["También trabajo en informática.","Ich arbeite auch in der IT."],
+  ["Estoy aquí de vacaciones.","Ich bin hier im Urlaub."],
+  ["Hablo un poco de español.","Ich spreche ein bisschen Spanisch."],
+  ["Estoy aprendiendo español.","Ich lerne gerade Spanisch."],
+  ["¿Y tú? ¿Vives aquí?","Und du? Wohnst du hier?"]],
+  dlg:[["p","¿De dónde eres?","Woher kommst du?"],
+   ["u","Soy de Alemania, del norte.","Ich komme aus Deutschland, aus dem Norden."],
+   ["p","¿Y a qué te dedicas?","Und was machst du beruflich?"],
+   ["u","Trabajo con árboles. Soy arborista.","Ich arbeite mit Bäumen. Ich bin Baumpfleger."],
+   ["p","¡Qué interesante! Hablas muy bien español.","Wie interessant! Du sprichst sehr gut Spanisch."],
+   ["u","Gracias, estoy aprendiendo.","Danke, ich lerne gerade."],
+   ["p","¿Estás aquí de vacaciones?","Bist du hier im Urlaub?"],
+   ["u","Sí, estoy aquí de vacaciones. ¿Y tú? ¿Vives aquí?","Ja, ich bin im Urlaub hier. Und du? Wohnst du hier?"],
+   ["p","Sí, vivo aquí desde hace diez años.","Ja, ich wohne seit zehn Jahren hier."]]},
+ cafe:{ph:[
+  ["Un café con leche, por favor.","Einen Milchkaffee, bitte."],
+  ["Un café solo.","Einen Espresso."],
+  ["Una caña, por favor.","Ein kleines Bier vom Fass, bitte."],
+  ["Un agua sin gas.","Ein stilles Wasser."],
+  ["¿Qué me recomienda?","Was empfehlen Sie mir?"],
+  ["¿Tienen algo para comer?","Haben Sie etwas zu essen?"],
+  ["Para tomar aquí.","Zum Hiertrinken."],
+  ["Para llevar, por favor.","Zum Mitnehmen, bitte."],
+  ["La cuenta, por favor.","Die Rechnung, bitte."],
+  ["¿Puedo pagar con tarjeta?","Kann ich mit Karte zahlen?"]],
+  dlg:[["p","Hola, buenos días. ¿Qué te pongo?","Hallo, guten Morgen. Was darf's sein?"],
+   ["u","Un café con leche, por favor.","Einen Milchkaffee, bitte."],
+   ["p","¿Algo más?","Sonst noch etwas?"],
+   ["u","¿Tienen algo para comer?","Haben Sie etwas zu essen?"],
+   ["p","Sí, tenemos tostadas y cruasanes.","Ja, wir haben Toast und Croissants."],
+   ["u","Una tostada, por favor.","Einen Toast, bitte."],
+   ["p","¿Para tomar aquí o para llevar?","Zum Hieressen oder zum Mitnehmen?"],
+   ["u","Para tomar aquí.","Zum Hieressen."],
+   ["p","Son cuatro euros con cincuenta.","Das macht vier Euro fünfzig."],
+   ["u","¿Puedo pagar con tarjeta?","Kann ich mit Karte zahlen?"],
+   ["p","Sí, claro.","Ja, klar."]]},
+ rest:{ph:[
+  ["Una mesa para dos, por favor.","Einen Tisch für zwei, bitte."],
+  ["¿Tienen una mesa libre?","Haben Sie einen freien Tisch?"],
+  ["La carta, por favor.","Die Speisekarte, bitte."],
+  ["¿Qué es esto?","Was ist das?"],
+  ["Para mí, la paella.","Für mich die Paella."],
+  ["¿Tiene picante?","Ist es scharf?"],
+  ["Está muy rico.","Es ist sehr lecker."],
+  ["¿Dónde está el baño?","Wo ist die Toilette?"],
+  ["Todo muy bien, gracias.","Alles sehr gut, danke."],
+  ["Soy vegetariano. / Soy vegetariana.","Ich bin Vegetarier / Vegetarierin."]],
+  dlg:[["p","Buenas noches. ¿Cuántos son?","Guten Abend. Wie viele Personen?"],
+   ["u","Una mesa para dos, por favor.","Einen Tisch für zwei, bitte."],
+   ["p","Por aquí. Aquí tienen la carta.","Hier entlang. Hier ist die Speisekarte."],
+   ["u","Gracias. ¿Qué me recomienda?","Danke. Was empfehlen Sie mir?"],
+   ["p","El pescado del día está muy bueno.","Der Fisch des Tages ist sehr gut."],
+   ["u","Para mí, el pescado.","Für mich den Fisch."],
+   ["p","¿Y para beber?","Und zu trinken?"],
+   ["u","Un agua sin gas, por favor.","Ein stilles Wasser, bitte."],
+   ["p","¿Todo bien?","Alles in Ordnung?"],
+   ["u","Sí, está muy rico.","Ja, es ist sehr lecker."]]},
+ shop:{ph:[
+  ["¿Cuánto cuesta?","Wie viel kostet das?"],
+  ["¿Cuánto es?","Wie viel macht das?"],
+  ["Quiero un kilo de tomates.","Ich möchte ein Kilo Tomaten."],
+  ["Medio kilo, por favor.","Ein halbes Kilo, bitte."],
+  ["¿Tiene pan?","Haben Sie Brot?"],
+  ["Solo estoy mirando.","Ich schaue nur."],
+  ["Es demasiado caro.","Das ist zu teuer."],
+  ["Me lo llevo.","Ich nehme es."],
+  ["Nada más, gracias.","Sonst nichts, danke."],
+  ["¿Tiene una bolsa?","Haben Sie eine Tüte?"]],
+  dlg:[["p","Buenos días, ¿qué le pongo?","Guten Morgen, was darf's sein?"],
+   ["u","Quiero un kilo de tomates.","Ich möchte ein Kilo Tomaten."],
+   ["p","Aquí tiene. ¿Algo más?","Bitte schön. Sonst noch etwas?"],
+   ["u","¿Tiene pan?","Haben Sie Brot?"],
+   ["p","No, lo siento. Pan hay en la panadería.","Nein, tut mir leid. Brot gibt es in der Bäckerei."],
+   ["u","Vale. Nada más, gracias. ¿Cuánto es?","Okay. Sonst nichts, danke. Wie viel macht das?"],
+   ["p","Son tres euros.","Das macht drei Euro."],
+   ["u","Aquí tiene. ¡Gracias!","Bitte schön. Danke!"]]},
+ way:{ph:[
+  ["Perdone, ¿dónde está la estación?","Entschuldigung, wo ist der Bahnhof?"],
+  ["¿Hay un supermercado cerca?","Gibt es einen Supermarkt in der Nähe?"],
+  ["¿Cómo llego a la playa?","Wie komme ich zum Strand?"],
+  ["¿Está lejos?","Ist es weit?"],
+  ["Todo recto.","Geradeaus."],
+  ["A la derecha.","Rechts."],
+  ["A la izquierda.","Links."],
+  ["¿Se puede ir andando?","Kann man zu Fuß gehen?"],
+  ["Gracias por su ayuda.","Danke für Ihre Hilfe."]],
+  dlg:[["u","Perdone, ¿cómo llego a la playa?","Entschuldigung, wie komme ich zum Strand?"],
+   ["p","Siga todo recto y luego a la derecha.","Gehen Sie geradeaus und dann rechts."],
+   ["u","¿Está lejos?","Ist es weit?"],
+   ["p","No, a unos diez minutos andando.","Nein, etwa zehn Minuten zu Fuß."],
+   ["u","Muchas gracias por su ayuda.","Vielen Dank für Ihre Hilfe."],
+   ["p","De nada. ¡Que vaya bien!","Gern geschehen. Alles Gute!"]]},
+ talk:{ph:[
+  ["¡Qué calor hace hoy!","Was für eine Hitze heute!"],
+  ["Hace buen tiempo.","Es ist schönes Wetter."],
+  ["Hace frío.","Es ist kalt."],
+  ["Está lloviendo.","Es regnet."],
+  ["¡Qué bonito es esto!","Wie schön es hier ist!"],
+  ["¿Eres de aquí?","Bist du von hier?"],
+  ["¿Cuánto tiempo llevas aquí?","Wie lange bist du schon hier?"],
+  ["¿Qué tal el fin de semana?","Wie war das Wochenende?"],
+  ["¡Qué bien! / ¡Qué pena!","Wie schön! / Wie schade!"],
+  ["¿En serio?","Echt? Im Ernst?"]],
+  dlg:[["p","¡Qué calor hace hoy!","Was für eine Hitze heute!"],
+   ["u","Sí, hace mucho calor.","Ja, es ist sehr heiß."],
+   ["p","¿Eres de aquí?","Bist du von hier?"],
+   ["u","No, soy de Alemania. Allí hace frío ahora.","Nein, ich komme aus Deutschland. Dort ist es jetzt kalt."],
+   ["p","¡Ja, ja! ¿Y te gusta esto?","Haha! Und gefällt es dir hier?"],
+   ["u","Sí, ¡qué bonito es esto!","Ja, wie schön es hier ist!"],
+   ["p","¿Cuánto tiempo llevas aquí?","Wie lange bist du schon hier?"],
+   ["u","Una semana.","Eine Woche."],
+   ["p","¡Qué bien! Disfruta.","Wie schön! Genieß es."]]},
+ hobby:{ph:[
+  ["¿Qué te gusta hacer?","Was machst du gern?"],
+  ["En mi tiempo libre…","In meiner Freizeit…"],
+  ["Me gusta viajar.","Ich reise gern."],
+  ["Me gusta leer.","Ich lese gern."],
+  ["Me gusta mucho la naturaleza.","Ich mag die Natur sehr."],
+  ["Viajo en autocaravana.","Ich reise mit dem Wohnmobil."],
+  ["Me encanta la comida española.","Ich liebe das spanische Essen."],
+  ["¿Te gusta el fútbol?","Magst du Fußball?"],
+  ["A mí también.","Mir auch."],
+  ["A mí no.","Mir nicht."]],
+  dlg:[["p","¿Qué te gusta hacer en tu tiempo libre?","Was machst du gern in deiner Freizeit?"],
+   ["u","Me gusta viajar.","Ich reise gern."],
+   ["p","¡A mí también! ¿Cómo viajas?","Ich auch! Wie reist du?"],
+   ["u","Viajo en autocaravana.","Ich reise mit dem Wohnmobil."],
+   ["p","¡Qué guay! ¿Y te gusta la comida española?","Wie cool! Und magst du das spanische Essen?"],
+   ["u","Sí, me encanta la comida española.","Ja, ich liebe das spanische Essen."],
+   ["p","¿Te gusta el fútbol?","Magst du Fußball?"],
+   ["u","A mí no. Me gusta más la naturaleza.","Ich nicht. Ich mag lieber die Natur."]]},
+ camp:{ph:[
+  ["¿Tienen sitio para una autocaravana?","Haben Sie Platz für ein Wohnmobil?"],
+  ["Tengo una reserva.","Ich habe eine Reservierung."],
+  ["Para dos noches.","Für zwei Nächte."],
+  ["¿Cuánto cuesta por noche?","Wie viel kostet es pro Nacht?"],
+  ["¿Hay electricidad?","Gibt es Strom?"],
+  ["¿Dónde están las duchas?","Wo sind die Duschen?"],
+  ["¿Dónde puedo vaciar las aguas grises?","Wo kann ich das Grauwasser entleeren?"],
+  ["¿Cuál es la contraseña del wifi?","Wie ist das WLAN-Passwort?"],
+  ["¿A qué hora hay que salir?","Bis wann muss man abreisen?"]],
+  dlg:[["u","Buenas tardes. ¿Tienen sitio para una autocaravana?","Guten Tag. Haben Sie Platz für ein Wohnmobil?"],
+   ["p","Sí. ¿Para cuántas noches?","Ja. Für wie viele Nächte?"],
+   ["u","Para dos noches.","Für zwei Nächte."],
+   ["p","Muy bien.","Sehr gut."],
+   ["u","¿Cuánto cuesta por noche?","Wie viel kostet es pro Nacht?"],
+   ["p","Veinticinco euros, con electricidad.","Fünfundzwanzig Euro, mit Strom."],
+   ["u","Perfecto. ¿Dónde están las duchas?","Perfekt. Wo sind die Duschen?"],
+   ["p","Allí, al lado de la recepción.","Dort, neben der Rezeption."]]},
+ help:{ph:[
+  ["No entiendo.","Ich verstehe nicht."],
+  ["¿Puede repetir, por favor?","Können Sie das bitte wiederholen?"],
+  ["Más despacio, por favor.","Langsamer, bitte."],
+  ["¿Qué significa eso?","Was bedeutet das?"],
+  ["¿Cómo se dice … en español?","Wie sagt man … auf Spanisch?"],
+  ["¿Habla inglés?","Sprechen Sie Englisch?"],
+  ["Perdón, no hablo bien español.","Entschuldigung, ich spreche nicht gut Spanisch."],
+  ["¿Me lo puede escribir?","Können Sie es mir aufschreiben?"],
+  ["Vale.","Okay."],
+  ["Lo siento.","Es tut mir leid."]],
+  dlg:[["p","Perdone, ¿sabe si el autobús para aquí o en la otra parada?","Entschuldigung, wissen Sie, ob der Bus hier hält oder an der anderen Haltestelle?"],
+   ["u","Perdón, no entiendo. Más despacio, por favor.","Entschuldigung, ich verstehe nicht. Langsamer, bitte."],
+   ["p","Claro. ¿El autobús… para… aquí?","Klar. Hält… der Bus… hier?"],
+   ["u","Lo siento, no lo sé. No soy de aquí.","Tut mir leid, ich weiß es nicht. Ich bin nicht von hier."],
+   ["p","Ah, vale. ¡Gracias igualmente!","Ah, okay. Trotzdem danke!"],
+   ["u","De nada.","Gern geschehen."]]},
+ bye:{ph:[
+  ["¡Adiós!","Tschüss! / Auf Wiedersehen!"],
+  ["¡Hasta luego!","Bis später!"],
+  ["¡Hasta mañana!","Bis morgen!"],
+  ["Nos vemos.","Wir sehen uns."],
+  ["Ha sido un placer.","Es war mir ein Vergnügen."],
+  ["¿Quedamos mañana?","Treffen wir uns morgen?"],
+  ["¿Tienes WhatsApp?","Hast du WhatsApp?"],
+  ["¡Que te vaya bien!","Mach's gut!"],
+  ["¡Buen viaje!","Gute Reise!"]],
+  dlg:[["p","Bueno, me tengo que ir.","Na gut, ich muss los."],
+   ["u","Vale. Ha sido un placer.","Okay. Es war mir ein Vergnügen."],
+   ["p","Igualmente. ¿Tienes WhatsApp?","Gleichfalls. Hast du WhatsApp?"],
+   ["u","Sí, claro.","Ja, klar."],
+   ["p","¡Genial! ¿Quedamos mañana?","Super! Treffen wir uns morgen?"],
+   ["u","Sí. ¡Hasta mañana!","Ja. Bis morgen!"]]}
+ }},
+
+it:{name:"Italienisch",native:"Italiano",code:"it-IT",
+ tip:"",
+ order:["greet","me","cafe","rest","shop","way","talk","hobby","camp","help","bye"],
+ s:{
+ greet:{ph:[
+  ["Ciao! Come stai?","Hallo! Wie geht's?"],["Buongiorno.","Guten Morgen / Guten Tag."],["Buonasera.","Guten Abend."],
+  ["Bene, grazie. E tu?","Gut, danke. Und du?"],["Così così.","Geht so."],
+  ["Mi chiamo Rumi. E tu, come ti chiami?","Ich heiße Rumi. Und wie heißt du?"],["Piacere.","Freut mich."],
+  ["Come sta?","Wie geht es Ihnen? (förmlich)"],["Arrivederci!","Auf Wiedersehen!"],["A presto!","Bis bald!"]],
+  dlg:[["p","Ciao! Come stai?","Hallo! Wie geht's?"],["u","Bene, grazie. E tu?","Gut, danke. Und du?"],
+   ["p","Bene anche io. Mi chiamo Giulia. E tu?","Mir auch. Ich heiße Giulia. Und du?"],["u","Mi chiamo Rumi. Piacere.","Ich heiße Rumi. Freut mich."],
+   ["p","Piacere! Di dove sei?","Freut mich! Woher kommst du?"],["u","Vengo dalla Germania.","Ich komme aus Deutschland."],
+   ["p","Che bello! Benvenuto!","Wie schön! Willkommen!"],["u","Grazie mille!","Vielen Dank!"]]},
+ me:{ph:[
+  ["Di dove sei?","Woher kommst du?"],["Vengo dalla Germania, dal nord.","Ich komme aus Deutschland, aus dem Norden."],
+  ["Abito in un paese vicino a Kiel.","Ich wohne in einem Dorf in der Nähe von Kiel."],["Che lavoro fai?","Was machst du beruflich?"],
+  ["Lavoro con gli alberi. Sono arboricoltore.","Ich arbeite mit Bäumen. Ich bin Baumpfleger."],["Lavoro anche nell'informatica.","Ich arbeite auch in der IT."],
+  ["Sono qui in vacanza.","Ich bin hier im Urlaub."],["Parlo un po' d'italiano.","Ich spreche ein bisschen Italienisch."],
+  ["Sto imparando l'italiano.","Ich lerne gerade Italienisch."],["E tu? Abiti qui?","Und du? Wohnst du hier?"]],
+  dlg:[["p","Di dove sei?","Woher kommst du?"],["u","Vengo dalla Germania, dal nord.","Ich komme aus Deutschland, aus dem Norden."],
+   ["p","E che lavoro fai?","Und was machst du beruflich?"],["u","Lavoro con gli alberi. Sono arboricoltore.","Ich arbeite mit Bäumen. Ich bin Baumpfleger."],
+   ["p","Che interessante! Parli bene l'italiano.","Wie interessant! Du sprichst gut Italienisch."],["u","Grazie, sto imparando.","Danke, ich lerne gerade."],
+   ["p","Sei qui in vacanza?","Bist du hier im Urlaub?"],["u","Sì, sono qui in vacanza. E tu? Abiti qui?","Ja, ich bin im Urlaub hier. Und du? Wohnst du hier?"],
+   ["p","Sì, abito qui da dieci anni.","Ja, ich wohne seit zehn Jahren hier."]]},
+ cafe:{ph:[
+  ["Un caffè, per favore.","Einen Espresso, bitte."],["Un cappuccino, per favore.","Einen Cappuccino, bitte."],
+  ["Una birra alla spina, per favore.","Ein Bier vom Fass, bitte."],["Un'acqua naturale.","Ein stilles Wasser."],
+  ["Cosa mi consiglia?","Was empfehlen Sie mir?"],["Avete qualcosa da mangiare?","Haben Sie etwas zu essen?"],
+  ["Al banco.","Am Tresen (im Stehen)."],["Da portare via, per favore.","Zum Mitnehmen, bitte."],
+  ["Il conto, per favore.","Die Rechnung, bitte."],["Posso pagare con la carta?","Kann ich mit Karte zahlen?"]],
+  dlg:[["p","Buongiorno! Cosa prende?","Guten Morgen! Was nehmen Sie?"],["u","Un cappuccino, per favore.","Einen Cappuccino, bitte."],
+   ["p","Qualcos'altro?","Sonst noch etwas?"],["u","Avete qualcosa da mangiare?","Haben Sie etwas zu essen?"],
+   ["p","Sì, abbiamo cornetti e panini.","Ja, wir haben Croissants und belegte Brötchen."],["u","Un cornetto, per favore.","Ein Croissant, bitte."],
+   ["p","Al banco o al tavolo?","Am Tresen oder am Tisch?"],["u","Al banco.","Am Tresen."],
+   ["p","Sono tre euro e cinquanta.","Das macht drei Euro fünfzig."],["u","Posso pagare con la carta?","Kann ich mit Karte zahlen?"],["p","Sì, certo.","Ja, klar."]]},
+ rest:{ph:[
+  ["Un tavolo per due, per favore.","Einen Tisch für zwei, bitte."],["Avete un tavolo libero?","Haben Sie einen freien Tisch?"],
+  ["Il menù, per favore.","Die Speisekarte, bitte."],["Che cos'è questo?","Was ist das?"],
+  ["Per me, la pasta del giorno.","Für mich die Pasta des Tages."],["È piccante?","Ist es scharf?"],
+  ["È buonissimo!","Es ist sehr lecker!"],["Dov'è il bagno?","Wo ist die Toilette?"],
+  ["Tutto ottimo, grazie.","Alles bestens, danke."],["Sono vegetariano. / Sono vegetariana.","Ich bin Vegetarier / Vegetarierin."]],
+  dlg:[["p","Buonasera. Quanti siete?","Guten Abend. Wie viele sind Sie?"],["u","Un tavolo per due, per favore.","Einen Tisch für zwei, bitte."],
+   ["p","Prego, da questa parte. Ecco il menù.","Bitte hier entlang. Hier ist die Karte."],["u","Grazie. Cosa mi consiglia?","Danke. Was empfehlen Sie mir?"],
+   ["p","Il pesce del giorno è molto buono.","Der Fisch des Tages ist sehr gut."],["u","Per me, il pesce.","Für mich den Fisch."],
+   ["p","E da bere?","Und zu trinken?"],["u","Un'acqua naturale, per favore.","Ein stilles Wasser, bitte."],
+   ["p","Tutto bene?","Alles in Ordnung?"],["u","Sì, è buonissimo!","Ja, es ist sehr lecker!"]]},
+ shop:{ph:[
+  ["Quanto costa?","Wie viel kostet das?"],["Quant'è?","Wie viel macht das?"],["Vorrei un chilo di pomodori.","Ich hätte gern ein Kilo Tomaten."],
+  ["Mezzo chilo, per favore.","Ein halbes Kilo, bitte."],["Avete il pane?","Haben Sie Brot?"],["Sto solo guardando.","Ich schaue nur."],
+  ["È troppo caro.","Das ist zu teuer."],["Lo prendo.","Ich nehme es."],["Nient'altro, grazie.","Sonst nichts, danke."],["Avete una busta?","Haben Sie eine Tüte?"]],
+  dlg:[["p","Buongiorno, cosa desidera?","Guten Morgen, was wünschen Sie?"],["u","Vorrei un chilo di pomodori.","Ich hätte gern ein Kilo Tomaten."],
+   ["p","Ecco. Altro?","Bitte schön. Noch etwas?"],["u","Avete il pane?","Haben Sie Brot?"],
+   ["p","No, mi dispiace. C'è un forno qui vicino.","Nein, tut mir leid. Hier in der Nähe ist eine Bäckerei."],
+   ["u","Va bene. Nient'altro, grazie. Quant'è?","Okay. Sonst nichts, danke. Wie viel macht das?"],["p","Sono tre euro.","Das macht drei Euro."],["u","Ecco a lei. Grazie!","Bitte schön. Danke!"]]},
+ way:{ph:[
+  ["Scusi, dov'è la stazione?","Entschuldigung, wo ist der Bahnhof?"],["C'è un supermercato qui vicino?","Gibt es hier in der Nähe einen Supermarkt?"],
+  ["Come arrivo alla spiaggia?","Wie komme ich zum Strand?"],["È lontano?","Ist es weit?"],["Sempre dritto.","Immer geradeaus."],
+  ["A destra.","Rechts."],["A sinistra.","Links."],["Si può andare a piedi?","Kann man zu Fuß gehen?"],["Grazie per l'aiuto.","Danke für die Hilfe."]],
+  dlg:[["u","Scusi, come arrivo alla spiaggia?","Entschuldigung, wie komme ich zum Strand?"],["p","Vada sempre dritto e poi a destra.","Gehen Sie geradeaus und dann rechts."],
+   ["u","È lontano?","Ist es weit?"],["p","No, sono dieci minuti a piedi.","Nein, zehn Minuten zu Fuß."],
+   ["u","Grazie mille per l'aiuto.","Vielen Dank für die Hilfe."],["p","Prego. Buona giornata!","Gern geschehen. Schönen Tag!"]]},
+ talk:{ph:[
+  ["Che caldo oggi!","Was für eine Hitze heute!"],["Fa bel tempo.","Es ist schönes Wetter."],["Fa freddo.","Es ist kalt."],["Piove.","Es regnet."],
+  ["Che bello qui!","Wie schön es hier ist!"],["Sei di qui?","Bist du von hier?"],["Da quanto tempo sei qui?","Seit wann bist du hier?"],
+  ["Com'è andato il fine settimana?","Wie war das Wochenende?"],["Che bello! / Che peccato!","Wie schön! / Wie schade!"],["Davvero?","Wirklich?"]],
+  dlg:[["p","Che caldo oggi!","Was für eine Hitze heute!"],["u","Sì, fa molto caldo.","Ja, es ist sehr heiß."],
+   ["p","Sei di qui?","Bist du von hier?"],["u","No, vengo dalla Germania. Lì adesso fa freddo.","Nein, ich komme aus Deutschland. Dort ist es jetzt kalt."],
+   ["p","Ah ah! E ti piace qui?","Haha! Und gefällt es dir hier?"],["u","Sì, che bello qui!","Ja, wie schön es hier ist!"],
+   ["p","Da quanto tempo sei qui?","Seit wann bist du hier?"],["u","Da una settimana.","Seit einer Woche."],["p","Che bello! Goditela!","Wie schön! Genieß es!"]]},
+ hobby:{ph:[
+  ["Cosa ti piace fare?","Was machst du gern?"],["Nel mio tempo libero…","In meiner Freizeit…"],["Mi piace viaggiare.","Ich reise gern."],
+  ["Mi piace leggere.","Ich lese gern."],["Mi piace molto la natura.","Ich mag die Natur sehr."],["Viaggio in camper.","Ich reise mit dem Wohnmobil."],
+  ["Adoro la cucina italiana.","Ich liebe die italienische Küche."],["Ti piace il calcio?","Magst du Fußball?"],["Anche a me.","Mir auch."],["A me no.","Mir nicht."]],
+  dlg:[["p","Cosa ti piace fare nel tempo libero?","Was machst du gern in deiner Freizeit?"],["u","Mi piace viaggiare.","Ich reise gern."],
+   ["p","Anche a me! Come viaggi?","Ich auch! Wie reist du?"],["u","Viaggio in camper.","Ich reise mit dem Wohnmobil."],
+   ["p","Che figata! E ti piace la cucina italiana?","Wie cool! Und magst du die italienische Küche?"],["u","Sì, adoro la cucina italiana.","Ja, ich liebe die italienische Küche."],
+   ["p","Ti piace il calcio?","Magst du Fußball?"],["u","A me no. Preferisco la natura.","Ich nicht. Ich mag lieber die Natur."]]},
+ camp:{ph:[
+  ["Avete posto per un camper?","Haben Sie Platz für ein Wohnmobil?"],["Ho una prenotazione.","Ich habe eine Reservierung."],["Per due notti.","Für zwei Nächte."],
+  ["Quanto costa a notte?","Wie viel kostet es pro Nacht?"],["C'è la corrente?","Gibt es Strom?"],["Dove sono le docce?","Wo sind die Duschen?"],
+  ["Dove posso scaricare le acque grigie?","Wo kann ich das Grauwasser entleeren?"],["Qual è la password del wifi?","Wie ist das WLAN-Passwort?"],
+  ["A che ora bisogna partire?","Bis wann muss man abreisen?"]],
+  dlg:[["u","Buonasera. Avete posto per un camper?","Guten Abend. Haben Sie Platz für ein Wohnmobil?"],["p","Sì. Per quante notti?","Ja. Für wie viele Nächte?"],
+   ["u","Per due notti.","Für zwei Nächte."],["p","Va benissimo.","Sehr gut."],["u","Quanto costa a notte?","Wie viel kostet es pro Nacht?"],
+   ["p","Venticinque euro, con la corrente.","Fünfundzwanzig Euro, mit Strom."],["u","Perfetto. Dove sono le docce?","Perfekt. Wo sind die Duschen?"],
+   ["p","Lì, accanto alla reception.","Dort, neben der Rezeption."]]},
+ help:{ph:[
+  ["Non capisco.","Ich verstehe nicht."],["Può ripetere, per favore?","Können Sie das bitte wiederholen?"],["Più lentamente, per favore.","Langsamer, bitte."],
+  ["Cosa significa?","Was bedeutet das?"],["Come si dice … in italiano?","Wie sagt man … auf Italienisch?"],["Parla inglese?","Sprechen Sie Englisch?"],
+  ["Scusi, non parlo bene l'italiano.","Entschuldigung, ich spreche nicht gut Italienisch."],["Me lo può scrivere?","Können Sie es mir aufschreiben?"],
+  ["Va bene.","Okay."],["Mi dispiace.","Es tut mir leid."]],
+  dlg:[["p","Scusi, sa se l'autobus si ferma qui o all'altra fermata?","Entschuldigung, wissen Sie, ob der Bus hier hält oder an der anderen Haltestelle?"],
+   ["u","Scusi, non capisco. Più lentamente, per favore.","Entschuldigung, ich verstehe nicht. Langsamer, bitte."],
+   ["p","Certo. L'autobus… si ferma… qui?","Natürlich. Hält… der Bus… hier?"],["u","Mi dispiace, non lo so. Non sono di qui.","Tut mir leid, ich weiß es nicht. Ich bin nicht von hier."],
+   ["p","Ah, va bene. Grazie lo stesso!","Ah, okay. Trotzdem danke!"],["u","Prego.","Gern geschehen."]]},
+ bye:{ph:[
+  ["Ciao!","Tschüss! (auch: Hallo)"],["A dopo!","Bis später!"],["A domani!","Bis morgen!"],["Ci vediamo.","Wir sehen uns."],
+  ["È stato un piacere.","Es war mir ein Vergnügen."],["Ci vediamo domani?","Sehen wir uns morgen?"],["Hai WhatsApp?","Hast du WhatsApp?"],
+  ["Stammi bene!","Mach's gut!"],["Buon viaggio!","Gute Reise!"]],
+  dlg:[["p","Beh, devo andare.","Na gut, ich muss los."],["u","Va bene. È stato un piacere.","Okay. Es war mir ein Vergnügen."],
+   ["p","Anche per me. Hai WhatsApp?","Mir auch. Hast du WhatsApp?"],["u","Sì, certo.","Ja, klar."],
+   ["p","Perfetto! Ci vediamo domani?","Super! Sehen wir uns morgen?"],["u","Sì. A domani!","Ja. Bis morgen!"]]}
+ }},
+
+fr:{name:"Französisch",native:"Français",code:"fr-FR",
+ tip:"<b>Tipp:</b> Mit Fremden und im Laden siezt man (<i>vous</i>), unter Gleichaltrigen duzt man schnell (<i>tu</i>). Immer mit „Bonjour“ anfangen – auch beim Bäcker. Wo „/“ steht: erste Form für Männer, zweite für Frauen.",
+ order:["greet","me","cafe","rest","shop","way","talk","hobby","camp","help","bye"],
+ s:{
+ greet:{ph:[
+  ["Bonjour !","Guten Tag!"],["Salut ! Ça va ?","Hi! Wie geht's?"],
+  ["Ça va bien, merci. Et toi ?","Mir geht's gut, danke. Und dir?"],
+  ["Je m'appelle Rumi. Et toi ?","Ich heiße Rumi. Und du?"],
+  ["Enchanté. / Enchantée.","Freut mich. (m / w)"],["Bonsoir.","Guten Abend."],
+  ["Comment allez-vous ?","Wie geht es Ihnen?"],["Au revoir !","Auf Wiedersehen!"],["À bientôt !","Bis bald!"],
+  ["Comme ci, comme ça.","Geht so."]],
+  dlg:[["p","Bonjour ! Ça va ?","Hallo! Wie geht's?"],["u","Ça va bien, merci. Et toi ?","Gut, danke. Und dir?"],
+   ["p","Très bien ! Je m'appelle Camille. Et toi ?","Sehr gut! Ich heiße Camille. Und du?"],
+   ["u","Je m'appelle Rumi. Enchanté.","Ich heiße Rumi. Freut mich."],
+   ["p","Enchantée ! Tu viens d'où ?","Freut mich! Woher kommst du?"],["u","Je viens d'Allemagne.","Ich komme aus Deutschland."],
+   ["p","Super ! Bienvenue !","Super! Willkommen!"],["u","Merci beaucoup !","Vielen Dank!"]]},
+ me:{ph:[
+  ["Je viens d'Allemagne.","Ich komme aus Deutschland."],["J'habite près de Kiel.","Ich wohne in der Nähe von Kiel."],
+  ["Je travaille avec les arbres. Je suis arboriste.","Ich arbeite mit Bäumen. Ich bin Baumpfleger."],
+  ["Je travaille aussi dans l'informatique.","Ich arbeite auch in der IT."],["Je suis ici en vacances.","Ich bin hier im Urlaub."],
+  ["Je parle un peu français.","Ich spreche ein bisschen Französisch."],["Tu viens d'où ?","Woher kommst du?"],
+  ["Qu'est-ce que tu fais dans la vie ?","Was machst du beruflich?"],["J'apprends le français.","Ich lerne Französisch."],
+  ["Et toi, tu habites ici ?","Und du, wohnst du hier?"]],
+  dlg:[["p","Tu viens d'où ?","Woher kommst du?"],
+   ["u","Je viens d'Allemagne, du nord.","Ich komme aus Deutschland, aus dem Norden."],
+   ["p","Et qu'est-ce que tu fais dans la vie ?","Und was machst du beruflich?"],
+   ["u","Je travaille avec les arbres. Je suis arboriste.","Ich arbeite mit Bäumen. Ich bin Baumpfleger."],
+   ["p","C'est intéressant ! Tu parles bien français.","Interessant! Du sprichst gut Französisch."],
+   ["u","Merci, j'apprends le français.","Danke, ich lerne Französisch."],
+   ["p","Tu es ici en vacances ?","Bist du hier im Urlaub?"],
+   ["u","Oui, je suis ici en vacances. Et toi, tu habites ici ?","Ja, ich bin im Urlaub hier. Und du, wohnst du hier?"],
+   ["p","Oui, j'habite ici depuis dix ans.","Ja, ich wohne seit zehn Jahren hier."]]},
+ cafe:{ph:[
+  ["Un café, s'il vous plaît.","Einen Kaffee (Espresso), bitte."],["Un grand crème, s'il vous plaît.","Einen großen Milchkaffee, bitte."],
+  ["Une bière pression, s'il vous plaît.","Ein Bier vom Fass, bitte."],["Une carafe d'eau, s'il vous plaît.","Eine Karaffe Leitungswasser, bitte."],
+  ["Qu'est-ce que vous me conseillez ?","Was empfehlen Sie mir?"],["Vous avez quelque chose à manger ?","Haben Sie etwas zu essen?"],
+  ["Sur place.","Zum Hieressen / Hiertrinken."],["À emporter, s'il vous plaît.","Zum Mitnehmen, bitte."],
+  ["L'addition, s'il vous plaît.","Die Rechnung, bitte."],["Je peux payer par carte ?","Kann ich mit Karte zahlen?"]],
+  dlg:[["p","Bonjour ! Qu'est-ce que je vous sers ?","Guten Tag! Was darf ich Ihnen bringen?"],
+   ["u","Un grand crème, s'il vous plaît.","Einen großen Milchkaffee, bitte."],
+   ["p","Autre chose ?","Sonst noch etwas?"],
+   ["u","Vous avez quelque chose à manger ?","Haben Sie etwas zu essen?"],
+   ["p","Oui, nous avons des croissants et des tartines.","Ja, wir haben Croissants und belegte Brote."],
+   ["u","Un croissant, s'il vous plaît.","Ein Croissant, bitte."],
+   ["p","Sur place ou à emporter ?","Zum Hieressen oder zum Mitnehmen?"],
+   ["u","Sur place.","Zum Hieressen."],
+   ["p","Ça fait cinq euros vingt.","Das macht fünf Euro zwanzig."],
+   ["u","Je peux payer par carte ?","Kann ich mit Karte zahlen?"],
+   ["p","Oui, bien sûr.","Ja, natürlich."]]},
+ rest:{ph:[
+  ["Une table pour deux, s'il vous plaît.","Einen Tisch für zwei, bitte."],["Vous avez une table libre ?","Haben Sie einen freien Tisch?"],
+  ["La carte, s'il vous plaît.","Die Speisekarte, bitte."],["Qu'est-ce que c'est ?","Was ist das?"],
+  ["Pour moi, le plat du jour.","Für mich das Tagesgericht."],["C'est épicé ?","Ist es scharf?"],
+  ["C'est délicieux !","Das ist köstlich!"],["Où sont les toilettes ?","Wo ist die Toilette?"],
+  ["Tout était très bon, merci.","Alles war sehr gut, danke."],["Je suis végétarien. / Je suis végétarienne.","Ich bin Vegetarier / Vegetarierin."]],
+  dlg:[["p","Bonsoir. Vous êtes combien ?","Guten Abend. Wie viele sind Sie?"],
+   ["u","Une table pour deux, s'il vous plaît.","Einen Tisch für zwei, bitte."],
+   ["p","Par ici. Voici la carte.","Hier entlang. Hier ist die Karte."],
+   ["u","Merci. Qu'est-ce que vous me conseillez ?","Danke. Was empfehlen Sie mir?"],
+   ["p","Le poisson du jour est très bon.","Der Fisch des Tages ist sehr gut."],
+   ["u","Pour moi, le poisson.","Für mich den Fisch."],
+   ["p","Et comme boisson ?","Und zu trinken?"],
+   ["u","Une carafe d'eau, s'il vous plaît.","Eine Karaffe Wasser, bitte."],
+   ["p","Tout va bien ?","Ist alles in Ordnung?"],
+   ["u","Oui, c'est délicieux !","Ja, es ist köstlich!"]]},
+ shop:{ph:[
+  ["Combien ça coûte ?","Wie viel kostet das?"],["C'est combien ?","Wie viel macht das?"],
+  ["Je voudrais un kilo de tomates.","Ich hätte gern ein Kilo Tomaten."],["Un demi-kilo, s'il vous plaît.","Ein halbes Kilo, bitte."],
+  ["Vous avez du pain ?","Haben Sie Brot?"],["Je regarde seulement.","Ich schaue nur."],
+  ["C'est trop cher.","Das ist zu teuer."],["Je le prends.","Ich nehme es."],
+  ["C'est tout, merci.","Das ist alles, danke."],["Vous avez un sac ?","Haben Sie eine Tüte?"]],
+  dlg:[["p","Bonjour ! Qu'est-ce qu'il vous faut ?","Guten Tag! Was brauchen Sie?"],
+   ["u","Je voudrais un kilo de tomates.","Ich hätte gern ein Kilo Tomaten."],
+   ["p","Voilà. Et avec ceci ?","Bitte schön. Darf es noch etwas sein?"],
+   ["u","Vous avez du pain ?","Haben Sie Brot?"],
+   ["p","Non, désolé. Il y a une boulangerie à côté.","Nein, tut mir leid. Nebenan ist eine Bäckerei."],
+   ["u","D'accord. C'est tout, merci. C'est combien ?","Okay. Das ist alles, danke. Wie viel macht das?"],
+   ["p","Ça fait trois euros.","Das macht drei Euro."],
+   ["u","Voilà. Merci !","Bitte schön. Danke!"]]},
+ way:{ph:[
+  ["Excusez-moi, où est la gare ?","Entschuldigung, wo ist der Bahnhof?"],["Il y a un supermarché près d'ici ?","Gibt es hier in der Nähe einen Supermarkt?"],
+  ["Comment je vais à la plage ?","Wie komme ich zum Strand?"],["C'est loin ?","Ist es weit?"],
+  ["Tout droit.","Geradeaus."],["À droite.","Rechts."],["À gauche.","Links."],
+  ["On peut y aller à pied ?","Kann man zu Fuß hingehen?"],["Merci pour votre aide.","Danke für Ihre Hilfe."]],
+  dlg:[["u","Excusez-moi, comment je vais à la plage ?","Entschuldigung, wie komme ich zum Strand?"],
+   ["p","Allez tout droit, puis à droite.","Gehen Sie geradeaus, dann rechts."],
+   ["u","C'est loin ?","Ist es weit?"],
+   ["p","Non, c'est à dix minutes à pied.","Nein, zehn Minuten zu Fuß."],
+   ["u","Merci beaucoup pour votre aide.","Vielen Dank für Ihre Hilfe."],
+   ["p","Je vous en prie. Bonne journée !","Gern geschehen. Schönen Tag noch!"]]},
+ talk:{ph:[
+  ["Il fait beau aujourd'hui !","Heute ist schönes Wetter!"],["Il fait chaud.","Es ist warm."],["Il fait froid.","Es ist kalt."],
+  ["Il pleut.","Es regnet."],["C'est très joli ici !","Es ist sehr schön hier!"],["Tu es d'ici ?","Bist du von hier?"],
+  ["Tu es là depuis combien de temps ?","Seit wann bist du hier?"],["Tu as passé un bon week-end ?","Hattest du ein schönes Wochenende?"],
+  ["Super ! / Dommage !","Super! / Schade!"],["C'est vrai ?","Wirklich?"]],
+  dlg:[["p","Il fait chaud aujourd'hui !","Heute ist es heiß!"],
+   ["u","Oui, il fait très chaud.","Ja, es ist sehr heiß."],
+   ["p","Tu es d'ici ?","Bist du von hier?"],
+   ["u","Non, je viens d'Allemagne. Là-bas, il fait froid maintenant.","Nein, ich komme aus Deutschland. Dort ist es jetzt kalt."],
+   ["p","Ha ha ! Et ça te plaît ici ?","Haha! Und gefällt es dir hier?"],
+   ["u","Oui, c'est très joli ici !","Ja, es ist sehr schön hier!"],
+   ["p","Tu es là depuis combien de temps ?","Seit wann bist du hier?"],
+   ["u","Depuis une semaine.","Seit einer Woche."],
+   ["p","Super ! Profite bien !","Super! Genieß es!"]]},
+ hobby:{ph:[
+  ["Qu'est-ce que tu aimes faire ?","Was machst du gern?"],["Pendant mon temps libre…","In meiner Freizeit…"],
+  ["J'aime voyager.","Ich reise gern."],["J'aime lire.","Ich lese gern."],
+  ["J'aime beaucoup la nature.","Ich mag die Natur sehr."],["Je voyage en camping-car.","Ich reise mit dem Wohnmobil."],
+  ["J'adore la cuisine française.","Ich liebe die französische Küche."],["Tu aimes le foot ?","Magst du Fußball?"],
+  ["Moi aussi.","Ich auch."],["Moi non.","Ich nicht."]],
+  dlg:[["p","Qu'est-ce que tu aimes faire pendant ton temps libre ?","Was machst du gern in deiner Freizeit?"],
+   ["u","J'aime voyager.","Ich reise gern."],
+   ["p","Moi aussi ! Tu voyages comment ?","Ich auch! Wie reist du?"],
+   ["u","Je voyage en camping-car.","Ich reise mit dem Wohnmobil."],
+   ["p","Trop bien ! Et tu aimes la cuisine française ?","Wie cool! Und magst du die französische Küche?"],
+   ["u","Oui, j'adore la cuisine française.","Ja, ich liebe die französische Küche."],
+   ["p","Tu aimes le foot ?","Magst du Fußball?"],
+   ["u","Moi non. Je préfère la nature.","Ich nicht. Ich mag lieber die Natur."]]},
+ camp:{ph:[
+  ["Vous avez de la place pour un camping-car ?","Haben Sie Platz für ein Wohnmobil?"],["J'ai une réservation.","Ich habe eine Reservierung."],
+  ["Pour deux nuits.","Für zwei Nächte."],["C'est combien par nuit ?","Wie viel kostet es pro Nacht?"],
+  ["Il y a de l'électricité ?","Gibt es Strom?"],["Où sont les douches ?","Wo sind die Duschen?"],
+  ["Où est-ce que je peux vider les eaux grises ?","Wo kann ich das Grauwasser entleeren?"],
+  ["Quel est le mot de passe du wifi ?","Wie ist das WLAN-Passwort?"],["À quelle heure faut-il partir ?","Bis wann muss man abreisen?"]],
+  dlg:[["u","Bonjour. Vous avez de la place pour un camping-car ?","Guten Tag. Haben Sie Platz für ein Wohnmobil?"],
+   ["p","Oui. Pour combien de nuits ?","Ja. Für wie viele Nächte?"],
+   ["u","Pour deux nuits.","Für zwei Nächte."],
+   ["p","Très bien.","Sehr gut."],
+   ["u","C'est combien par nuit ?","Wie viel kostet es pro Nacht?"],
+   ["p","Vingt-deux euros, avec l'électricité.","Zweiundzwanzig Euro, mit Strom."],
+   ["u","Parfait. Où sont les douches ?","Perfekt. Wo sind die Duschen?"],
+   ["p","Là-bas, à côté de l'accueil.","Dort drüben, neben der Rezeption."]]},
+ help:{ph:[
+  ["Je ne comprends pas.","Ich verstehe nicht."],["Pouvez-vous répéter, s'il vous plaît ?","Können Sie das bitte wiederholen?"],
+  ["Plus lentement, s'il vous plaît.","Langsamer, bitte."],["Qu'est-ce que ça veut dire ?","Was bedeutet das?"],
+  ["Comment dit-on … en français ?","Wie sagt man … auf Französisch?"],["Vous parlez anglais ?","Sprechen Sie Englisch?"],
+  ["Pardon, je parle mal français.","Entschuldigung, ich spreche schlecht Französisch."],["Vous pouvez l'écrire ?","Können Sie es aufschreiben?"],
+  ["D'accord.","Einverstanden. / Okay."],["Désolé. / Désolée.","Tut mir leid. (m / w)"]],
+  dlg:[["p","Excusez-moi, vous savez si le bus s'arrête ici ou à l'autre arrêt ?","Entschuldigung, wissen Sie, ob der Bus hier hält oder an der anderen Haltestelle?"],
+   ["u","Pardon, je ne comprends pas. Plus lentement, s'il vous plaît.","Entschuldigung, ich verstehe nicht. Langsamer, bitte."],
+   ["p","Bien sûr. Le bus… s'arrête… ici ?","Natürlich. Hält… der Bus… hier?"],
+   ["u","Désolé, je ne sais pas. Je ne suis pas d'ici.","Tut mir leid, ich weiß es nicht. Ich bin nicht von hier."],
+   ["p","Ah, d'accord. Merci quand même !","Ah, okay. Trotzdem danke!"],
+   ["u","De rien.","Gern geschehen."]]},
+ bye:{ph:[
+  ["Au revoir !","Auf Wiedersehen!"],["Salut !","Tschüss! (locker)"],["À plus tard !","Bis später!"],
+  ["À demain !","Bis morgen!"],["C'était un plaisir.","Es war mir ein Vergnügen."],["On se voit demain ?","Sehen wir uns morgen?"],
+  ["Tu as WhatsApp ?","Hast du WhatsApp?"],["Bonne continuation !","Mach's gut! / Weiterhin alles Gute!"],["Bon voyage !","Gute Reise!"]],
+  dlg:[["p","Bon, je dois y aller.","Gut, ich muss los."],
+   ["u","D'accord. C'était un plaisir.","Okay. Es war mir ein Vergnügen."],
+   ["p","Pour moi aussi. Tu as WhatsApp ?","Mir auch. Hast du WhatsApp?"],
+   ["u","Oui, bien sûr.","Ja, natürlich."],
+   ["p","Génial ! On se voit demain ?","Super! Sehen wir uns morgen?"],
+   ["u","Oui. À demain !","Ja. Bis morgen!"]]}
+ }},
+
+da:{name:"Dänisch",native:"Dansk",code:"da-DK",
+ tip:"<b>Tipp:</b> In Dänemark duzt man praktisch jeden. Viele Dänen wechseln schnell ins Englische – sag freundlich „Jeg øver mig på dansk“ (Ich übe Dänisch).",
+ order:["greet","me","cafe","way","talk","help"],
+ s:{
+ greet:{ph:[
+  ["Hej!","Hallo!"],["Godmorgen.","Guten Morgen."],["Hvordan har du det?","Wie geht es dir?"],
+  ["Jeg har det godt, tak. Og dig?","Mir geht's gut, danke. Und dir?"],["Jeg hedder Rumi. Hvad hedder du?","Ich heiße Rumi. Wie heißt du?"],
+  ["Hyggeligt at møde dig.","Schön, dich kennenzulernen."],["Farvel!","Auf Wiedersehen!"],["Vi ses!","Wir sehen uns!"]],
+  dlg:[["p","Hej! Hvordan har du det?","Hallo! Wie geht es dir?"],["u","Jeg har det godt, tak. Og dig?","Mir geht's gut, danke. Und dir?"],
+   ["p","Fint, tak! Jeg hedder Mette. Hvad hedder du?","Gut, danke! Ich heiße Mette. Wie heißt du?"],
+   ["u","Jeg hedder Rumi. Hyggeligt at møde dig.","Ich heiße Rumi. Schön, dich kennenzulernen."],
+   ["p","I lige måde! Hvor kommer du fra?","Gleichfalls! Woher kommst du?"],["u","Jeg kommer fra Tyskland.","Ich komme aus Deutschland."],
+   ["p","Nå, så er vi jo naboer!","Ach, dann sind wir ja Nachbarn!"]]},
+ me:{ph:[
+  ["Jeg kommer fra Tyskland.","Ich komme aus Deutschland."],["Jeg bor tæt på Kiel.","Ich wohne in der Nähe von Kiel."],
+  ["Jeg arbejder med træer.","Ich arbeite mit Bäumen."],["Jeg arbejder også med IT.","Ich arbeite auch mit IT."],
+  ["Jeg er her på ferie.","Ich bin hier im Urlaub."],["Jeg taler lidt dansk.","Ich spreche ein bisschen Dänisch."],
+  ["Hvor kommer du fra?","Woher kommst du?"],["Hvad laver du?","Was machst du (beruflich)?"]]},
+ cafe:{t:"Café & Restaurant",ph:[
+  ["En kop kaffe, tak.","Eine Tasse Kaffee, bitte."],["En øl, tak.","Ein Bier, bitte."],["Et glas vand, tak.","Ein Glas Wasser, bitte."],
+  ["Et bord til to, tak.","Einen Tisch für zwei, bitte."],["Hvad kan du anbefale?","Was kannst du empfehlen?"],
+  ["Det smager godt!","Das schmeckt gut!"],["Må jeg bede om regningen?","Darf ich um die Rechnung bitten?"],["Kan jeg betale med kort?","Kann ich mit Karte zahlen?"]]},
+ way:{t:"Unterwegs & Einkaufen",ph:[
+  ["Undskyld, hvor er stationen?","Entschuldigung, wo ist der Bahnhof?"],["Er det langt væk?","Ist es weit weg?"],
+  ["Ligeud.","Geradeaus."],["Til højre.","Nach rechts."],["Til venstre.","Nach links."],
+  ["Hvad koster det?","Was kostet das?"],["Jeg kigger bare.","Ich schaue nur."],["Jeg tager den.","Ich nehme es."]]},
+ talk:{ph:[
+  ["Det er dejligt vejr i dag!","Heute ist herrliches Wetter!"],["Det er koldt.","Es ist kalt."],["Det regner.","Es regnet."],
+  ["Her er virkelig smukt!","Hier ist es wirklich schön!"],["Jeg kan godt lide at rejse.","Ich reise gern."],
+  ["Jeg rejser i autocamper.","Ich reise mit dem Wohnmobil."],["Mig også.","Ich auch."],["Hvor hyggeligt!","Wie gemütlich / schön!"],["Virkelig?","Wirklich?"]]},
+ help:{ph:[
+  ["Jeg forstår ikke.","Ich verstehe nicht."],["Kan du gentage det?","Kannst du das wiederholen?"],
+  ["Lidt langsommere, tak.","Etwas langsamer, bitte."],["Hvad betyder det?","Was bedeutet das?"],
+  ["Hvordan siger man … på dansk?","Wie sagt man … auf Dänisch?"],["Taler du engelsk?","Sprichst du Englisch?"],
+  ["Undskyld, jeg taler ikke så godt dansk.","Entschuldigung, ich spreche nicht so gut Dänisch."],["Jeg øver mig på dansk.","Ich übe Dänisch."]]}
+ }},
+
+pl:{name:"Polnisch",native:"Polski",code:"pl-PL",
+ tip:"<b>Tipp:</b> Förmlich spricht man Fremde mit <i>pan</i> (Herr) / <i>pani</i> (Frau) an, z. B. „Co pan poleca?“. Unter Gleichaltrigen wird schnell geduzt.",
+ order:["greet","me","cafe","way","talk","help"],
+ s:{
+ greet:{ph:[
+  ["Cześć!","Hallo! / Tschüss! (locker)"],["Dzień dobry.","Guten Tag."],["Jak się masz?","Wie geht es dir?"],
+  ["Dobrze, dziękuję. A ty?","Gut, danke. Und du?"],["Mam na imię Rumi. A ty?","Ich heiße Rumi. Und du?"],
+  ["Miło mi.","Freut mich."],["Do widzenia!","Auf Wiedersehen!"],["Na razie!","Bis dann!"]],
+  dlg:[["p","Cześć! Jak się masz?","Hallo! Wie geht es dir?"],["u","Dobrze, dziękuję. A ty?","Gut, danke. Und du?"],
+   ["p","Też dobrze! Mam na imię Kasia. A ty?","Auch gut! Ich heiße Kasia. Und du?"],
+   ["u","Mam na imię Rumi. Miło mi.","Ich heiße Rumi. Freut mich."],
+   ["p","Mnie też! Skąd jesteś?","Mich auch! Woher kommst du?"],["u","Jestem z Niemiec.","Ich komme aus Deutschland."],
+   ["p","Super! Witaj w Polsce!","Super! Willkommen in Polen!"]]},
+ me:{ph:[
+  ["Jestem z Niemiec.","Ich komme aus Deutschland."],["Mieszkam niedaleko Kilonii.","Ich wohne in der Nähe von Kiel."],
+  ["Pracuję z drzewami.","Ich arbeite mit Bäumen."],["Pracuję też w IT.","Ich arbeite auch in der IT."],
+  ["Jestem tu na wakacjach.","Ich bin hier im Urlaub."],["Mówię trochę po polsku.","Ich spreche ein bisschen Polnisch."],
+  ["Skąd jesteś?","Woher kommst du?"],["Czym się zajmujesz?","Was machst du beruflich?"]]},
+ cafe:{t:"Café & Restaurant",ph:[
+  ["Poproszę kawę.","Einen Kaffee, bitte."],["Poproszę piwo.","Ein Bier, bitte."],["Poproszę wodę niegazowaną.","Ein stilles Wasser, bitte."],
+  ["Stolik dla dwóch osób, proszę.","Einen Tisch für zwei Personen, bitte."],["Co pan poleca? / Co pani poleca?","Was empfehlen Sie? (zu Mann / Frau)"],
+  ["To jest pyszne!","Das ist lecker!"],["Poproszę rachunek.","Die Rechnung, bitte."],["Czy mogę zapłacić kartą?","Kann ich mit Karte zahlen?"]]},
+ way:{t:"Unterwegs & Einkaufen",ph:[
+  ["Przepraszam, gdzie jest dworzec?","Entschuldigung, wo ist der Bahnhof?"],["Czy to daleko?","Ist es weit?"],
+  ["Prosto.","Geradeaus."],["W prawo.","Nach rechts."],["W lewo.","Nach links."],
+  ["Ile to kosztuje?","Wie viel kostet das?"],["Tylko się rozglądam.","Ich schaue mich nur um."],["Wezmę to.","Ich nehme das."]]},
+ talk:{ph:[
+  ["Ładna dzisiaj pogoda!","Schönes Wetter heute!"],["Jest zimno.","Es ist kalt."],["Pada deszcz.","Es regnet."],
+  ["Tu jest pięknie!","Hier ist es wunderschön!"],["Lubię podróżować.","Ich reise gern."],
+  ["Podróżuję kamperem.","Ich reise mit dem Wohnmobil."],["Ja też.","Ich auch."],["Naprawdę?","Wirklich?"]]},
+ help:{ph:[
+  ["Nie rozumiem.","Ich verstehe nicht."],["Czy może pan powtórzyć? / Czy może pani powtórzyć?","Können Sie das wiederholen? (zu Mann / Frau)"],
+  ["Proszę wolniej.","Langsamer, bitte."],["Co to znaczy?","Was bedeutet das?"],["Jak się mówi … po polsku?","Wie sagt man … auf Polnisch?"],
+  ["Czy mówi pan po angielsku?","Sprechen Sie Englisch? (zu einem Mann)"],["Przepraszam, słabo mówię po polsku.","Entschuldigung, ich spreche schlecht Polnisch."],
+  ["Dobrze.","Gut. / Okay."]]}
+ }},
+
+ru:{name:"Russisch",native:"Русский",code:"ru-RU",rom:true,
+ tip:"<b>Tipp:</b> Die Umschrift hilft am Anfang – lerne nebenbei das kyrillische Alphabet, viele Buchstaben kennst du schon. Fremde siezt man (<i>вы</i>).",
+ order:["greet","me","cafe","way","talk","help"],
+ s:{
+ greet:{ph:[
+  ["Привет!","Hallo! (locker)","Privet!"],["Здравствуйте.","Guten Tag. (förmlich)","Zdravstvuyte."],["Как дела?","Wie geht's?","Kak dela?"],
+  ["Хорошо, спасибо. А у тебя?","Gut, danke. Und bei dir?","Khorosho, spasibo. A u tebya?"],
+  ["Меня зовут Руми. А тебя?","Ich heiße Rumi. Und du?","Menya zovut Rumi. A tebya?"],
+  ["Очень приятно.","Sehr angenehm. / Freut mich.","Ochen' priyatno."],["До свидания!","Auf Wiedersehen!","Do svidaniya!"],["Пока!","Tschüss!","Poka!"]],
+  dlg:[["p","Привет! Как дела?","Hallo! Wie geht's?","Privet! Kak dela?"],
+   ["u","Хорошо, спасибо. А у тебя?","Gut, danke. Und bei dir?","Khorosho, spasibo. A u tebya?"],
+   ["p","Тоже хорошо! Меня зовут Аня. А тебя?","Auch gut! Ich heiße Anja. Und du?","Tozhe khorosho! Menya zovut Anya. A tebya?"],
+   ["u","Меня зовут Руми. Очень приятно.","Ich heiße Rumi. Freut mich.","Menya zovut Rumi. Ochen' priyatno."],
+   ["p","Мне тоже! Откуда ты?","Mich auch! Woher kommst du?","Mne tozhe! Otkuda ty?"],
+   ["u","Я из Германии.","Ich komme aus Deutschland.","Ya iz Germanii."],
+   ["p","Здорово!","Super!","Zdorovo!"]]},
+ me:{ph:[
+  ["Я из Германии.","Ich komme aus Deutschland.","Ya iz Germanii."],["Я живу недалеко от Киля.","Ich wohne in der Nähe von Kiel.","Ya zhivu nedaleko ot Kilya."],
+  ["Я работаю с деревьями.","Ich arbeite mit Bäumen.","Ya rabotayu s derev'yami."],["Я также работаю в IT.","Ich arbeite auch in der IT.","Ya takzhe rabotayu v ay-ti."],
+  ["Я здесь в отпуске.","Ich bin hier im Urlaub.","Ya zdes' v otpuske."],["Я немного говорю по-русски.","Ich spreche ein bisschen Russisch.","Ya nemnogo govoryu po-russki."],
+  ["Откуда ты?","Woher kommst du?","Otkuda ty?"],["Чем ты занимаешься?","Was machst du beruflich?","Chem ty zanimayesh'sya?"]]},
+ cafe:{t:"Café & Restaurant",ph:[
+  ["Кофе, пожалуйста.","Einen Kaffee, bitte.","Kofe, pozhaluysta."],["Чай, пожалуйста.","Einen Tee, bitte.","Chay, pozhaluysta."],
+  ["Воду без газа, пожалуйста.","Stilles Wasser, bitte.","Vodu bez gaza, pozhaluysta."],["Столик на двоих, пожалуйста.","Einen Tisch für zwei, bitte.","Stolik na dvoikh, pozhaluysta."],
+  ["Что вы посоветуете?","Was empfehlen Sie?","Chto vy posovetuyete?"],["Очень вкусно!","Sehr lecker!","Ochen' vkusno!"],
+  ["Счёт, пожалуйста.","Die Rechnung, bitte.","Schyot, pozhaluysta."],["Можно картой?","Geht es mit Karte?","Mozhno kartoy?"]]},
+ way:{t:"Unterwegs & Einkaufen",ph:[
+  ["Извините, где вокзал?","Entschuldigung, wo ist der Bahnhof?","Izvinite, gde vokzal?"],["Это далеко?","Ist das weit?","Eto daleko?"],
+  ["Прямо.","Geradeaus.","Pryamo."],["Направо.","Nach rechts.","Napravo."],["Налево.","Nach links.","Nalevo."],
+  ["Сколько стоит?","Wie viel kostet es?","Skol'ko stoit?"],["Я просто смотрю.","Ich schaue nur.","Ya prosto smotryu."],["Я возьму это.","Ich nehme das.","Ya voz'mu eto."]]},
+ talk:{ph:[
+  ["Сегодня хорошая погода!","Heute ist schönes Wetter!","Segodnya khoroshaya pogoda!"],["Холодно.","Es ist kalt.","Kholodno."],
+  ["Идёт дождь.","Es regnet.","Idyot dozhd'."],["Здесь очень красиво!","Hier ist es sehr schön!","Zdes' ochen' krasivo!"],
+  ["Я люблю путешествовать.","Ich reise gern.","Ya lyublyu puteshestvovat'."],["Я путешествую на автодоме.","Ich reise mit dem Wohnmobil.","Ya puteshestvuyu na avtodome."],
+  ["Я тоже.","Ich auch.","Ya tozhe."],["Правда?","Wirklich?","Pravda?"]]},
+ help:{ph:[
+  ["Я не понимаю.","Ich verstehe nicht.","Ya ne ponimayu."],["Повторите, пожалуйста.","Wiederholen Sie bitte.","Povtorite, pozhaluysta."],
+  ["Помедленнее, пожалуйста.","Etwas langsamer, bitte.","Pomedlenneye, pozhaluysta."],["Что это значит?","Was bedeutet das?","Chto eto znachit?"],
+  ["Как сказать … по-русски?","Wie sagt man … auf Russisch?","Kak skazat' … po-russki?"],["Вы говорите по-английски?","Sprechen Sie Englisch?","Vy govorite po-angliyski?"],
+  ["Извините, я плохо говорю по-русски.","Entschuldigung, ich spreche schlecht Russisch.","Izvinite, ya plokho govoryu po-russki."],["Хорошо.","Gut. / Okay.","Khorosho."]]}
+ }},
+
+ja:{name:"Japanisch",native:"日本語",code:"ja-JP",rom:true,
+ tip:"<b>Tipp:</b> Die höfliche Form mit <i>-desu / -masu</i> passt fast immer. Ein kleines Nicken bei Begrüßung und Dank wirkt Wunder.",
+ order:["greet","me","cafe","way","talk","help"],
+ s:{
+ greet:{ph:[
+  ["こんにちは。","Guten Tag. / Hallo.","Konnichiwa."],["おはようございます。","Guten Morgen.","Ohayō gozaimasu."],
+  ["お元気ですか？","Wie geht es Ihnen?","O-genki desu ka?"],["元気です。ありがとう。","Mir geht's gut. Danke.","Genki desu. Arigatō."],
+  ["はじめまして。","Freut mich (beim ersten Treffen).","Hajimemashite."],["ルミです。","Ich bin Rumi.","Rumi desu."],
+  ["よろしくお願いします。","Auf gute Bekanntschaft.","Yoroshiku onegai shimasu."],["さようなら。","Auf Wiedersehen.","Sayōnara."],["またね！","Bis dann!","Mata ne!"]],
+  dlg:[["p","こんにちは！","Hallo!","Konnichiwa!"],["u","こんにちは！","Hallo!","Konnichiwa!"],
+   ["p","はじめまして。ゆきです。","Freut mich. Ich bin Yuki.","Hajimemashite. Yuki desu."],
+   ["u","はじめまして。ルミです。よろしくお願いします。","Freut mich. Ich bin Rumi. Auf gute Bekanntschaft.","Hajimemashite. Rumi desu. Yoroshiku onegai shimasu."],
+   ["p","よろしくお願いします。お国はどちらですか？","Ebenso. Woher kommen Sie?","Yoroshiku onegai shimasu. O-kuni wa dochira desu ka?"],
+   ["u","ドイツから来ました。","Ich komme aus Deutschland.","Doitsu kara kimashita."],
+   ["p","そうですか！いいですね。","Ach so! Wie schön.","Sō desu ka! Ii desu ne."]]},
+ me:{ph:[
+  ["ドイツから来ました。","Ich komme aus Deutschland.","Doitsu kara kimashita."],["キールの近くに住んでいます。","Ich wohne in der Nähe von Kiel.","Kīru no chikaku ni sunde imasu."],
+  ["木の仕事をしています。","Ich arbeite mit Bäumen.","Ki no shigoto o shite imasu."],["ITの仕事もしています。","Ich arbeite auch in der IT.","Ai-tī no shigoto mo shite imasu."],
+  ["旅行で来ています。","Ich bin auf Reisen hier.","Ryokō de kite imasu."],["日本語を少し話します。","Ich spreche ein bisschen Japanisch.","Nihongo o sukoshi hanashimasu."],
+  ["お国はどちらですか？","Woher kommen Sie?","O-kuni wa dochira desu ka?"],["お仕事は何ですか？","Was machen Sie beruflich?","O-shigoto wa nan desu ka?"]]},
+ cafe:{t:"Café & Restaurant",ph:[
+  ["コーヒーをお願いします。","Einen Kaffee, bitte.","Kōhī o onegai shimasu."],["お水をお願いします。","Wasser, bitte.","O-mizu o onegai shimasu."],
+  ["二人です。","Wir sind zu zweit.","Futari desu."],["おすすめは何ですか？","Was empfehlen Sie?","Osusume wa nan desu ka?"],
+  ["これをください。","Das hier, bitte.","Kore o kudasai."],["おいしいです！","Das ist lecker!","Oishii desu!"],
+  ["お会計をお願いします。","Die Rechnung, bitte.","O-kaikei o onegai shimasu."],["カードで払えますか？","Kann ich mit Karte zahlen?","Kādo de haraemasu ka?"]]},
+ way:{t:"Unterwegs & Einkaufen",ph:[
+  ["すみません、駅はどこですか？","Entschuldigung, wo ist der Bahnhof?","Sumimasen, eki wa doko desu ka?"],["遠いですか？","Ist es weit?","Tōi desu ka?"],
+  ["まっすぐです。","Geradeaus.","Massugu desu."],["右です。","Rechts.","Migi desu."],["左です。","Links.","Hidari desu."],
+  ["いくらですか？","Wie viel kostet das?","Ikura desu ka?"],["見ているだけです。","Ich schaue nur.","Mite iru dake desu."],["これにします。","Ich nehme das.","Kore ni shimasu."]]},
+ talk:{ph:[
+  ["いい天気ですね。","Schönes Wetter, nicht wahr?","Ii tenki desu ne."],["暑いですね。","Heiß heute, oder?","Atsui desu ne."],
+  ["寒いですね。","Kalt heute, oder?","Samui desu ne."],["ここはきれいですね！","Hier ist es schön!","Koko wa kirei desu ne!"],
+  ["旅行が好きです。","Ich reise gern.","Ryokō ga suki desu."],["私もです。","Ich auch.","Watashi mo desu."],
+  ["本当ですか？","Wirklich?","Hontō desu ka?"],["すごいですね！","Toll!","Sugoi desu ne!"]]},
+ help:{ph:[
+  ["わかりません。","Ich verstehe nicht.","Wakarimasen."],["もう一度お願いします。","Bitte noch einmal.","Mō ichido onegai shimasu."],
+  ["ゆっくりお願いします。","Bitte langsam.","Yukkuri onegai shimasu."],["これは何ですか？","Was ist das?","Kore wa nan desu ka?"],
+  ["日本語で何と言いますか？","Wie sagt man das auf Japanisch?","Nihongo de nan to iimasu ka?"],["英語を話せますか？","Sprechen Sie Englisch?","Eigo o hanasemasu ka?"],
+  ["すみません、日本語が下手です。","Entschuldigung, mein Japanisch ist schlecht.","Sumimasen, nihongo ga heta desu."],["大丈夫です。","Alles okay. / Nein danke.","Daijōbu desu."]]}
+ }},
+
+th:{name:"Thai",native:"ไทย",code:"th-TH",rom:true,
+ tip:"",
+ order:["greet","me","cafe","shop","way","help"],
+ s:{
+ greet:{ph:[
+  ["สวัสดีครับ","Hallo / Guten Tag (Männer: khráp, Frauen: khâ)","sà-wàt-dii khráp"],["ขอบคุณครับ","Danke","khàwp-khun khráp"],
+  ["สบายดีไหมครับ","Wie geht's?","sà-baai-dii mái khráp"],["สบายดีครับ","Mir geht's gut","sà-baai-dii khráp"],
+  ["ผมชื่อรูมีครับ","Ich heiße Rumi","phǒm chûue Rumi khráp"],["คุณชื่ออะไรครับ","Wie heißt du?","khun chûue à-rai khráp"],
+  ["ยินดีที่ได้รู้จักครับ","Freut mich","yin-dii thîi dâai rúu-jàk khráp"],["ลาก่อนครับ","Auf Wiedersehen","laa-gàwn khráp"]],
+  dlg:[["p","สวัสดีค่ะ","Hallo!","sà-wàt-dii khâ"],["u","สวัสดีครับ","Hallo!","sà-wàt-dii khráp"],
+   ["p","สบายดีไหมคะ","Wie geht's?","sà-baai-dii mái khá"],["u","สบายดีครับ ขอบคุณครับ","Mir geht's gut, danke.","sà-baai-dii khráp khàwp-khun khráp"],
+   ["p","คุณมาจากไหนคะ","Woher kommst du?","khun maa jàak nǎi khá"],["u","ผมมาจากเยอรมันครับ","Ich komme aus Deutschland.","phǒm maa jàak yoe-ra-man khráp"],
+   ["p","ยินดีต้อนรับค่ะ","Willkommen!","yin-dii tâwn-ráp khâ"],["u","ขอบคุณครับ","Danke!","khàwp-khun khráp"]]},
+ me:{ph:[
+  ["ผมมาจากเยอรมันครับ","Ich komme aus Deutschland","phǒm maa jàak yoe-ra-man khráp"],["ผมมาเที่ยวครับ","Ich bin als Tourist hier","phǒm maa thîao khráp"],
+  ["ผมพูดไทยได้นิดหน่อยครับ","Ich spreche ein bisschen Thai","phǒm phûut thai dâai nít-nàwy khráp"],["คุณมาจากไหนครับ","Woher kommst du?","khun maa jàak nǎi khráp"],
+  ["ผมทำงานกับต้นไม้ครับ","Ich arbeite mit Bäumen","phǒm tham-ngaan gàp tôn-mái khráp"]]},
+ cafe:{t:"Essen & Trinken",ph:[
+  ["ขอเมนูครับ","Die Karte, bitte","khǎw mee-nuu khráp"],["อันนี้ครับ","Das hier, bitte","an níi khráp"],
+  ["ขอน้ำเปล่าครับ","Wasser, bitte","khǎw náam-plàao khráp"],["ขอกาแฟเย็นครับ","Einen Eiskaffee, bitte","khǎw gaa-fae yen khráp"],
+  ["ไม่เผ็ดครับ","Nicht scharf, bitte","mâi phèt khráp"],["เผ็ดนิดหน่อยครับ","Ein bisschen scharf","phèt nít-nàwy khráp"],
+  ["อร่อยมากครับ","Sehr lecker","à-ràwy mâak khráp"],["เช็คบิลครับ","Die Rechnung, bitte","chék bin khráp"]],
+  dlg:[["p","รับอะไรดีคะ","Was möchtest du?","ráp à-rai dii khá"],["u","ขอเมนูครับ","Die Karte, bitte.","khǎw mee-nuu khráp"],
+   ["p","นี่ค่ะ","Bitte schön.","nîi khâ"],["u","อันนี้ครับ ไม่เผ็ดครับ","Das hier bitte, nicht scharf.","an níi khráp mâi phèt khráp"],
+   ["p","ได้ค่ะ ดื่มอะไรคะ","Okay. Was trinkst du?","dâai khâ dùuem à-rai khá"],["u","ขอน้ำเปล่าครับ","Wasser, bitte.","khǎw náam-plàao khráp"],
+   ["p","อร่อยไหมคะ","Schmeckt's?","à-ràwy mái khá"],["u","อร่อยมากครับ เช็คบิลครับ","Sehr lecker! Die Rechnung, bitte.","à-ràwy mâak khráp chék bin khráp"]]},
+ shop:{t:"Markt & Handeln",ph:[
+  ["เท่าไหร่ครับ","Wie viel kostet das?","thâo-rài khráp"],["แพงไปครับ","Zu teuer","phaeng pai khráp"],
+  ["ลดได้ไหมครับ","Geht's günstiger?","lót dâai mái khráp"],["เอาอันนี้ครับ","Ich nehme das","ao an níi khráp"],
+  ["ไม่เอาครับ","Nein danke, möchte ich nicht","mâi ao khráp"],["ดูก่อนครับ","Ich schaue erst mal","duu gàwn khráp"],
+  ["หนึ่ง สอง สาม","eins, zwei, drei","nùeng, sǎwng, sǎam"],["ร้อย / พัน","hundert / tausend","rói / phan"]],
+  dlg:[["u","อันนี้เท่าไหร่ครับ","Wie viel kostet das?","an níi thâo-rài khráp"],["p","สามร้อยบาทค่ะ","300 Baht.","sǎam-rói bàat khâ"],
+   ["u","แพงไปครับ ลดได้ไหมครับ","Zu teuer. Geht's günstiger?","phaeng pai khráp lót dâai mái khráp"],["p","สองร้อยห้าสิบค่ะ","250.","sǎwng-rói hâa-sìp khâ"],
+   ["u","เอาอันนี้ครับ","Ich nehme es.","ao an níi khráp"],["p","ขอบคุณค่ะ","Danke!","khàwp-khun khâ"]]},
+ way:{t:"Unterwegs & Taxi",ph:[
+  ["ห้องน้ำอยู่ที่ไหนครับ","Wo ist die Toilette?","hâwng-náam yùu thîi-nǎi khráp"],["ไปสนามบินเท่าไหร่ครับ","Wie viel kostet es zum Flughafen?","pai sà-nǎam-bin thâo-rài khráp"],
+  ["ไปที่นี่ครับ","Hierhin, bitte (Adresse zeigen)","pai thîi-nîi khráp"],["จอดที่นี่ครับ","Hier anhalten, bitte","jàwt thîi-nîi khráp"],
+  ["ไกลไหมครับ","Ist es weit?","glai mái khráp"],["ตรงไป","Geradeaus","trong pai"],["เลี้ยวซ้าย","Links abbiegen","líao sáai"],["เลี้ยวขวา","Rechts abbiegen","líao khwǎa"]],
+  dlg:[["u","ไปสนามบินเท่าไหร่ครับ","Wie viel kostet es zum Flughafen?","pai sà-nǎam-bin thâo-rài khráp"],["p","ห้าร้อยบาทครับ","500 Baht.","hâa-rói bàat khráp"],
+   ["u","แพงไปครับ ลดได้ไหมครับ","Zu teuer. Geht's günstiger?","phaeng pai khráp lót dâai mái khráp"],["p","สี่ร้อยครับ","400.","sìi-rói khráp"],
+   ["u","ได้ครับ","Okay.","dâai khráp"],["p","ถึงแล้วครับ","Wir sind da.","thǔeng láew khráp"],["u","จอดที่นี่ครับ ขอบคุณครับ","Hier anhalten, bitte. Danke!","jàwt thîi-nîi khráp khàwp-khun khráp"]]},
+ help:{ph:[
+  ["ไม่เข้าใจครับ","Ich verstehe nicht","mâi khâo-jai khráp"],["พูดช้าๆหน่อยครับ","Bitte langsamer","phûut cháa-cháa nàwy khráp"],
+  ["พูดภาษาอังกฤษได้ไหมครับ","Sprechen Sie Englisch?","phûut phaa-sǎa ang-grìt dâai mái khráp"],["ขอโทษครับ","Entschuldigung","khǎw-thôot khráp"],
+  ["ไม่เป็นไร","Kein Problem / macht nichts","mâi pen rai"],["ใช่ / ไม่ใช่","Ja / Nein","châi / mâi châi"],["ช่วยด้วย","Hilfe!","chûai dûai"]]}
+ }},
+
+ar:{name:"Arabisch",native:"العربية",code:"ar-SA",rom:true,rtl:true,
+ tip:"<b>Tipp:</b> Hier lernst du Hocharabisch (wird überall verstanden). Im Alltag spricht man Dialekt – Grüße wie „As-salāmu ʿalaykum“ funktionieren aber überall. Die Sätze nutzen die Du-Form für Männer (<i>anta</i>).",
+ order:["greet","me","cafe","way","talk","help"],
+ s:{
+ greet:{ph:[
+  ["مرحبا!","Hallo!","Marḥaban!"],["السلام عليكم","Friede sei mit euch (üblicher Gruß)","As-salāmu ʿalaykum"],
+  ["وعليكم السلام","Und mit euch sei Friede (Antwort)","Wa ʿalaykum as-salām"],["كيف حالك؟","Wie geht es dir?","Kayfa ḥāluk?"],
+  ["بخير، الحمد لله. وأنت؟","Gut, Gott sei Dank. Und du?","Bikhayr, al-ḥamdu lillāh. Wa anta?"],["اسمي رومي.","Ich heiße Rumi.","Ismī Rūmī."],
+  ["ما اسمك؟","Wie heißt du?","Mā ismuk?"],["تشرفنا.","Freut mich.","Tasharrafnā."],["مع السلامة!","Auf Wiedersehen!","Maʿa as-salāma!"]],
+  dlg:[["p","السلام عليكم!","Friede sei mit euch!","As-salāmu ʿalaykum!"],["u","وعليكم السلام!","Und mit euch sei Friede!","Wa ʿalaykum as-salām!"],
+   ["p","كيف حالك؟","Wie geht es dir?","Kayfa ḥāluk?"],["u","بخير، الحمد لله. وأنت؟","Gut, Gott sei Dank. Und du?","Bikhayr, al-ḥamdu lillāh. Wa anta?"],
+   ["p","بخير. اسمي أحمد. ما اسمك؟","Gut. Ich heiße Ahmed. Wie heißt du?","Bikhayr. Ismī Aḥmad. Mā ismuk?"],
+   ["u","اسمي رومي. تشرفنا.","Ich heiße Rumi. Freut mich.","Ismī Rūmī. Tasharrafnā."],
+   ["p","أهلاً وسهلاً! من أين أنت؟","Herzlich willkommen! Woher kommst du?","Ahlan wa sahlan! Min ayna anta?"],
+   ["u","أنا من ألمانيا.","Ich komme aus Deutschland.","Anā min Almāniyā."]]},
+ me:{ph:[
+  ["أنا من ألمانيا.","Ich komme aus Deutschland.","Anā min Almāniyā."],["أسكن قرب كيل.","Ich wohne in der Nähe von Kiel.","Askun qurba Kīl."],
+  ["أعمل مع الأشجار.","Ich arbeite mit Bäumen.","Aʿmal maʿa al-ashjār."],["أعمل أيضاً في مجال الكمبيوتر.","Ich arbeite auch im IT-Bereich.","Aʿmal ayḍan fī majāl al-kumbyūtar."],
+  ["أنا هنا في إجازة.","Ich bin hier im Urlaub.","Anā hunā fī ijāza."],["أتكلم العربية قليلاً.","Ich spreche ein bisschen Arabisch.","Atakallam al-ʿarabiyya qalīlan."],
+  ["من أين أنت؟","Woher kommst du?","Min ayna anta?"],["ماذا تعمل؟","Was arbeitest du?","Mādhā taʿmal?"]]},
+ cafe:{t:"Café & Restaurant",ph:[
+  ["قهوة من فضلك.","Einen Kaffee, bitte.","Qahwa min faḍlak."],["شاي من فضلك.","Einen Tee, bitte.","Shāy min faḍlak."],
+  ["ماء من فضلك.","Wasser, bitte.","Māʾ min faḍlak."],["طاولة لشخصين من فضلك.","Einen Tisch für zwei, bitte.","Ṭāwila li-shakhṣayn min faḍlak."],
+  ["ماذا تنصحني؟","Was empfiehlst du mir?","Mādhā tanṣaḥunī?"],["لذيذ جداً!","Sehr lecker!","Ladhīdh jiddan!"],
+  ["الحساب من فضلك.","Die Rechnung, bitte.","Al-ḥisāb min faḍlak."],["هل يمكنني الدفع بالبطاقة؟","Kann ich mit Karte zahlen?","Hal yumkinunī ad-dafʿ bil-biṭāqa?"]]},
+ way:{t:"Unterwegs & Einkaufen",ph:[
+  ["عفواً، أين المحطة؟","Entschuldigung, wo ist der Bahnhof?","ʿAfwan, ayna al-maḥaṭṭa?"],["هل هو بعيد؟","Ist es weit?","Hal huwa baʿīd?"],
+  ["إلى الأمام.","Geradeaus.","Ilā al-amām."],["إلى اليمين.","Nach rechts.","Ilā al-yamīn."],["إلى اليسار.","Nach links.","Ilā al-yasār."],
+  ["بكم هذا؟","Wie viel kostet das?","Bikam hādhā?"],["أتفرج فقط.","Ich schaue nur.","Atafarraj faqaṭ."],["سآخذه.","Ich nehme es.","Sa-ākhudhuh."]]},
+ talk:{ph:[
+  ["الجو جميل اليوم!","Das Wetter ist heute schön!","Al-jaww jamīl al-yawm!"],["الجو حار.","Es ist heiß.","Al-jaww ḥārr."],
+  ["الجو بارد.","Es ist kalt.","Al-jaww bārid."],["المكان جميل جداً!","Der Ort ist sehr schön!","Al-makān jamīl jiddan!"],
+  ["أحب السفر.","Ich reise gern.","Uḥibb as-safar."],["أسافر بالكرفان.","Ich reise mit dem Wohnmobil.","Usāfir bil-karavān."],
+  ["وأنا أيضاً.","Ich auch.","Wa anā ayḍan."],["حقاً؟","Wirklich?","Ḥaqqan?"],["إن شاء الله","So Gott will (sehr häufig)","In shāʾ Allāh"]]},
+ help:{ph:[
+  ["لا أفهم.","Ich verstehe nicht.","Lā afham."],["أعد من فضلك.","Wiederhole bitte.","Aʿid min faḍlak."],
+  ["ببطء من فضلك.","Langsam, bitte.","Bi-buṭʾ min faḍlak."],["ماذا يعني هذا؟","Was bedeutet das?","Mādhā yaʿnī hādhā?"],
+  ["هل تتكلم الإنجليزية؟","Sprichst du Englisch?","Hal tatakallam al-injlīziyya?"],["آسف، عربيتي ضعيفة.","Entschuldigung, mein Arabisch ist schwach.","Āsif, ʿarabiyyatī ḍaʿīfa."],
+  ["شكراً جزيلاً","Vielen Dank","Shukran jazīlan"],["حسناً","Gut. / Okay.","Ḥasanan"]]}
+ }}
+};
+const LANG_ORDER=["es","it","fr","pl","ja","th","da","ru","ar"];
+
+/* ============ Top-100 Wörter ============  [Wort, Deutsch, Gruppe] */
+const WGROUPS=["Grundwörter","Fragewörter","Personen","Verben – direkt in der Ich-Form","Dinge, Zeit & Menschen","Eigenschaften","Zahlen"];
+const WORDS={
+es:[
+ ["sí","ja",0],["no","nein / nicht",0],["y","und",0],["pero","aber",0],["porque","weil",0],["también","auch",0],["muy","sehr",0],["más","mehr",0],
+ ["bien","gut (wie?)",0],["mal","schlecht (wie?)",0],["aquí","hier",0],["allí","dort",0],["ahora","jetzt",0],["hoy","heute",0],["mañana","morgen",0],
+ ["siempre","immer",0],["nunca","nie",0],["ya","schon",0],["todavía","noch",0],["con","mit",0],["sin","ohne",0],["para","für",0],["de","von / aus",0],
+ ["en","in / auf",0],["a","zu / nach",0],["por favor","bitte",0],["gracias","danke",0],["perdón","Entschuldigung",0],
+ ["qué","was",1],["quién","wer",1],["dónde","wo",1],["cuándo","wann",1],["cómo","wie",1],["cuánto","wie viel",1],["por qué","warum",1],["cuál","welche(r)",1],
+ ["yo","ich",2],["tú","du",2],["él","er",2],["ella","sie (eine Frau)",2],["usted","Sie (höflich)",2],["nosotros","wir",2],["ellos","sie (mehrere)",2],
+ ["mi","mein",2],["tu","dein",2],["su","sein / ihr / Ihr",2],
+ ["soy","ich bin (wer/was: Herkunft, Beruf)",3],["estoy","ich bin (wo/wie: Ort, Befinden)",3],["es","er/sie/es ist",3],["está","ist (Ort, Zustand)",3],
+ ["hay","es gibt",3],["tengo","ich habe",3],["quiero","ich möchte / will",3],["puedo","ich kann",3],["sé","ich weiß",3],["voy","ich gehe / fahre",3],
+ ["hago","ich mache",3],["hablo","ich spreche",3],["como","ich esse",3],["bebo","ich trinke",3],["vivo","ich wohne / lebe",3],
+ ["trabajo","ich arbeite / die Arbeit",3],["me gusta","mir gefällt / ich mag",3],["necesito","ich brauche",3],["veo","ich sehe",3],
+ ["entiendo","ich verstehe",3],["vengo","ich komme",3],["digo","ich sage",3],
+ ["día","Tag",4],["noche","Nacht / Abend",4],["semana","Woche",4],["año","Jahr",4],["hora","Stunde / Uhrzeit",4],["tiempo","Zeit / Wetter",4],
+ ["casa","Haus / Zuhause",4],["persona","Person",4],["agua","Wasser",4],["comida","Essen",4],["dinero","Geld",4],["amigo","Freund",4],
+ ["familia","Familie",4],["gente","Leute",4],["cosa","Sache / Ding",4],["ciudad","Stadt",4],["calle","Straße",4],
+ ["bueno","gut",5],["malo","schlecht",5],["grande","groß",5],["pequeño","klein",5],["nuevo","neu",5],["mucho","viel",5],["poco","wenig",5],
+ ["todo","alles",5],["otro","andere(r)",5],["bonito","schön",5],
+ ["uno","eins",6],["dos","zwei",6],["tres","drei",6],["cinco","fünf",6],["diez","zehn",6]
+]};
+WGROUPS.push("Essen & Trinken","Unterwegs & Orte","Menschen & Familie","Zeit & Wochentage","Natur & Wetter","Kleine Wörter & Ausdrücke");
+/* Spanisch: Wörter 101–300 */
+WORDS.es.push(
+ ["salgo","ich gehe aus / fahre los",3],["llego","ich komme an",3],["busco","ich suche",3],["compro","ich kaufe",3],["pago","ich zahle",3],
+ ["pido","ich bestelle / bitte um",3],["espero","ich warte / hoffe",3],["conozco","ich kenne",3],["creo","ich glaube",3],["pienso","ich denke",3],
+ ["leo","ich lese",3],["escribo","ich schreibe",3],["escucho","ich höre zu",3],["miro","ich schaue",3],["juego","ich spiele",3],
+ ["duermo","ich schlafe",3],["viajo","ich reise",3],["conduzco","ich fahre (Auto)",3],["camino","ich gehe zu Fuß",3],["nado","ich schwimme",3],
+ ["cocino","ich koche",3],["ayudo","ich helfe",3],["aprendo","ich lerne",3],["estudio","ich studiere / lerne",3],["abro","ich öffne",3],
+ ["cierro","ich schließe",3],["empiezo","ich fange an",3],["termino","ich beende / höre auf",3],["vuelvo","ich komme zurück",3],["llamo","ich rufe an",3],
+ ["me llamo","ich heiße",3],["tomo","ich nehme / trinke",3],["doy","ich gebe",3],["pongo","ich lege / stelle",3],["traigo","ich bringe",3],
+ ["prefiero","ich mag lieber",3],["me encanta","ich liebe (Dinge)",3],["me duele","mir tut … weh",3],["tengo que","ich muss",3],["vamos","los geht's / wir gehen",3],
+ ["pan","Brot",7],["carne","Fleisch",7],["pescado","Fisch",7],["pollo","Hähnchen",7],["huevo","Ei",7],["queso","Käse",7],["jamón","Schinken",7],
+ ["arroz","Reis",7],["verdura","Gemüse",7],["fruta","Obst",7],["ensalada","Salat",7],["patata","Kartoffel",7],["tomate","Tomate",7],["sal","Salz",7],
+ ["azúcar","Zucker",7],["leche","Milch",7],["café","Kaffee",7],["té","Tee",7],["cerveza","Bier",7],["vino","Wein",7],["zumo","Saft",7],
+ ["desayuno","Frühstück",7],["almuerzo","Mittagessen",7],["cena","Abendessen",7],["postre","Nachtisch",7],
+ ["coche","Auto",8],["autobús","Bus",8],["tren","Zug",8],["avión","Flugzeug",8],["bicicleta","Fahrrad",8],["estación","Bahnhof",8],["aeropuerto","Flughafen",8],
+ ["billete","Fahrkarte / Ticket",8],["playa","Strand",8],["mar","Meer",8],["montaña","Berg",8],["pueblo","Dorf",8],["centro","Zentrum",8],["tienda","Laden",8],
+ ["mercado","Markt",8],["supermercado","Supermarkt",8],["farmacia","Apotheke",8],["hospital","Krankenhaus",8],["banco","Bank",8],["hotel","Hotel",8],
+ ["restaurante","Restaurant",8],["baño","Toilette / Bad",8],["plaza","Platz",8],["carretera","Landstraße",8],["gasolinera","Tankstelle",8],
+ ["hombre","Mann",9],["mujer","Frau / Ehefrau",9],["niño","Kind / Junge",9],["niña","Kind / Mädchen",9],["hijo","Sohn",9],["hija","Tochter",9],
+ ["padre","Vater",9],["madre","Mutter",9],["padres","Eltern",9],["hermano","Bruder",9],["hermana","Schwester",9],["marido","Ehemann",9],
+ ["novio / novia","Freund / Freundin (Partner)",9],["señor","Herr",9],["señora","Frau (Anrede)",9],
+ ["lunes","Montag",10],["martes","Dienstag",10],["miércoles","Mittwoch",10],["jueves","Donnerstag",10],["viernes","Freitag",10],["sábado","Samstag",10],
+ ["domingo","Sonntag",10],["fin de semana","Wochenende",10],["mes","Monat",10],["minuto","Minute",10],["por la mañana","morgens",10],
+ ["por la tarde","nachmittags",10],["por la noche","abends / nachts",10],["ayer","gestern",10],["antes","vorher",10],["después","danach / später",10],
+ ["luego","dann / später",10],["pronto","bald",10],["tarde","spät",10],["temprano","früh",10],
+ ["sol","Sonne",11],["lluvia","Regen",11],["viento","Wind",11],["calor","Hitze",11],["frío","Kälte / kalt",11],["nube","Wolke",11],
+ ["árbol","Baum",11],["flor","Blume",11],["perro","Hund",11],["gato","Katze",11],["río","Fluss",11],["bosque","Wald",11],
+ ["caro","teuer",5],["barato","billig",5],["rico","lecker / reich",5],["fácil","einfach",5],["difícil","schwierig",5],["importante","wichtig",5],
+ ["mejor","besser",5],["peor","schlechter",5],["viejo","alt",5],["joven","jung",5],["largo","lang",5],["corto","kurz",5],["cerca","nah",5],
+ ["lejos","weit weg",5],["abierto","offen",5],["cerrado","geschlossen",5],["libre","frei",5],["ocupado","besetzt / beschäftigt",5],
+ ["cansado","müde",5],["contento","zufrieden / froh",5],["feliz","glücklich",5],["triste","traurig",5],["tranquilo","ruhig",5],["rápido","schnell",5],["lento","langsam",5],
+ ["cuatro","vier",6],["seis","sechs",6],["siete","sieben",6],["ocho","acht",6],["nueve","neun",6],["once","elf",6],["doce","zwölf",6],["quince","fünfzehn",6],
+ ["veinte","zwanzig",6],["treinta","dreißig",6],["cincuenta","fünfzig",6],["cien","hundert",6],["mil","tausend",6],["primero","erste(r)",6],["medio","halb",6],
+ ["vale","okay",12],["claro","klar",12],["de nada","gern geschehen",12],["hola","hallo",12],["adiós","tschüss",12],["lo siento","tut mir leid",12],
+ ["entonces","also / dann",12],["quizás","vielleicht",12],["algo","etwas",12],["nada","nichts",12],["alguien","jemand",12],["nadie","niemand",12],
+ ["cada","jede(r)",12],["solo","nur / allein",12],["casi","fast",12],["bastante","ziemlich / genug",12],["demasiado","zu (viel)",12],
+ ["otra vez","noch einmal",12],["juntos","zusammen",12],["mismo","gleich / derselbe",12],["sobre","über",12],["desde","seit / ab",12],["hasta","bis",12]
+);
+/* Französisch: 300 Wörter */
+WORDS.fr=[
+ ["oui","ja",0],["non","nein",0],["et","und",0],["mais","aber",0],["parce que","weil",0],["aussi","auch",0],["très","sehr",0],["plus","mehr",0],
+ ["bien","gut (wie?)",0],["mal","schlecht (wie?)",0],["ici","hier",0],["là-bas","dort",0],["maintenant","jetzt",0],["aujourd'hui","heute",0],["demain","morgen",0],
+ ["toujours","immer",0],["jamais","nie",0],["déjà","schon",0],["encore","noch / wieder",0],["avec","mit",0],["sans","ohne",0],["pour","für",0],
+ ["de","von / aus",0],["dans","in",0],["à","zu / nach / in",0],["s'il vous plaît","bitte",0],["merci","danke",0],["pardon","Entschuldigung",0],
+ ["qu'est-ce que","was",1],["qui","wer",1],["où","wo",1],["quand","wann",1],["comment","wie",1],["combien","wie viel",1],["pourquoi","warum",1],["quel / quelle","welche(r)",1],
+ ["je","ich",2],["tu","du",2],["il","er",2],["elle","sie (eine Frau)",2],["vous","Sie / ihr",2],["nous","wir",2],["ils / elles","sie (mehrere)",2],
+ ["mon / ma","mein / meine",2],["ton / ta","dein / deine",2],["son / sa","sein / ihr",2],
+ ["je suis","ich bin",3],["c'est","das ist",3],["il est / elle est","er ist / sie ist",3],["il y a","es gibt",3],["j'ai","ich habe",3],
+ ["je voudrais","ich möchte (höflich)",3],["je veux","ich will",3],["je peux","ich kann",3],["je sais","ich weiß",3],["je vais","ich gehe / fahre",3],
+ ["je fais","ich mache",3],["je parle","ich spreche",3],["je mange","ich esse",3],["je bois","ich trinke",3],["j'habite","ich wohne",3],
+ ["je travaille","ich arbeite",3],["j'aime","ich mag / liebe",3],["j'ai besoin de","ich brauche",3],["je vois","ich sehe",3],
+ ["je comprends","ich verstehe",3],["je viens","ich komme",3],["je dis","ich sage",3],
+ ["jour","Tag",4],["nuit","Nacht",4],["semaine","Woche",4],["an / année","Jahr",4],["heure","Stunde / Uhr",4],["temps","Zeit / Wetter",4],
+ ["maison","Haus / Zuhause",4],["personne","Person (auch: niemand)",4],["eau","Wasser",4],["repas","Essen / Mahlzeit",4],["argent","Geld",4],
+ ["ami / amie","Freund / Freundin",4],["famille","Familie",4],["gens","Leute",4],["chose","Sache / Ding",4],["ville","Stadt",4],["rue","Straße",4],
+ ["bon / bonne","gut",5],["mauvais","schlecht",5],["grand","groß",5],["petit","klein",5],["nouveau","neu",5],["beaucoup","viel",5],["peu","wenig",5],
+ ["tout","alles",5],["autre","andere(r)",5],["beau / belle","schön",5],
+ ["un","eins",6],["deux","zwei",6],["trois","drei",6],["cinq","fünf",6],["dix","zehn",6],
+ /* 101–300 */
+ ["je sors","ich gehe aus",3],["j'arrive","ich komme an",3],["je cherche","ich suche",3],["j'achète","ich kaufe",3],["je paie","ich zahle",3],
+ ["je commande","ich bestelle",3],["j'attends","ich warte",3],["je connais","ich kenne",3],["je crois","ich glaube",3],["je pense","ich denke",3],
+ ["je lis","ich lese",3],["j'écris","ich schreibe",3],["j'écoute","ich höre zu",3],["je regarde","ich schaue",3],["je joue","ich spiele",3],
+ ["je dors","ich schlafe",3],["je voyage","ich reise",3],["je conduis","ich fahre (Auto)",3],["je marche","ich gehe zu Fuß",3],["je nage","ich schwimme",3],
+ ["je cuisine","ich koche",3],["j'aide","ich helfe",3],["j'apprends","ich lerne",3],["j'étudie","ich studiere / lerne",3],["j'ouvre","ich öffne",3],
+ ["je ferme","ich schließe",3],["je commence","ich fange an",3],["je finis","ich beende",3],["je reviens","ich komme zurück",3],["j'appelle","ich rufe an",3],
+ ["je m'appelle","ich heiße",3],["je prends","ich nehme",3],["je donne","ich gebe",3],["je mets","ich lege / ziehe an",3],["j'apporte","ich bringe",3],
+ ["je préfère","ich mag lieber",3],["j'adore","ich liebe",3],["j'ai mal","es tut mir weh",3],["je dois","ich muss",3],["on y va","los geht's",3],
+ ["pain","Brot",7],["viande","Fleisch",7],["poisson","Fisch",7],["poulet","Hähnchen",7],["œuf","Ei",7],["fromage","Käse",7],["jambon","Schinken",7],
+ ["riz","Reis",7],["légumes","Gemüse",7],["fruits","Obst",7],["salade","Salat",7],["pomme de terre","Kartoffel",7],["tomate","Tomate",7],["sel","Salz",7],
+ ["sucre","Zucker",7],["lait","Milch",7],["café","Kaffee",7],["thé","Tee",7],["bière","Bier",7],["vin","Wein",7],["jus","Saft",7],
+ ["petit-déjeuner","Frühstück",7],["déjeuner","Mittagessen",7],["dîner","Abendessen",7],["dessert","Nachtisch",7],
+ ["voiture","Auto",8],["bus","Bus",8],["train","Zug",8],["avion","Flugzeug",8],["vélo","Fahrrad",8],["gare","Bahnhof",8],["aéroport","Flughafen",8],
+ ["billet","Fahrkarte / Ticket",8],["plage","Strand",8],["mer","Meer",8],["montagne","Berg",8],["village","Dorf",8],["centre-ville","Innenstadt",8],
+ ["magasin","Laden",8],["marché","Markt",8],["supermarché","Supermarkt",8],["pharmacie","Apotheke",8],["hôpital","Krankenhaus",8],["banque","Bank",8],
+ ["hôtel","Hotel",8],["restaurant","Restaurant",8],["toilettes","Toilette",8],["place","Platz",8],["route","Landstraße",8],["station-service","Tankstelle",8],
+ ["homme","Mann",9],["femme","Frau / Ehefrau",9],["enfant","Kind",9],["fils","Sohn",9],["fille","Tochter / Mädchen",9],["père","Vater",9],
+ ["mère","Mutter",9],["parents","Eltern",9],["frère","Bruder",9],["sœur","Schwester",9],["mari","Ehemann",9],
+ ["copain / copine","Freund / Freundin (Partner)",9],["monsieur","Herr",9],["madame","Frau (Anrede)",9],["bébé","Baby",9],
+ ["lundi","Montag",10],["mardi","Dienstag",10],["mercredi","Mittwoch",10],["jeudi","Donnerstag",10],["vendredi","Freitag",10],["samedi","Samstag",10],
+ ["dimanche","Sonntag",10],["week-end","Wochenende",10],["mois","Monat",10],["minute","Minute",10],["le matin","morgens",10],
+ ["l'après-midi","nachmittags",10],["le soir","abends",10],["hier","gestern",10],["avant","vorher",10],["après","danach",10],
+ ["ensuite","dann",10],["bientôt","bald",10],["tard","spät",10],["tôt","früh",10],
+ ["soleil","Sonne",11],["pluie","Regen",11],["vent","Wind",11],["chaleur","Hitze",11],["froid","Kälte / kalt",11],["nuage","Wolke",11],
+ ["arbre","Baum",11],["fleur","Blume",11],["chien","Hund",11],["chat","Katze",11],["rivière","Fluss",11],["forêt","Wald",11],
+ ["cher","teuer",5],["pas cher","billig",5],["délicieux","köstlich",5],["facile","einfach",5],["difficile","schwierig",5],["important","wichtig",5],
+ ["meilleur","besser",5],["pire","schlechter",5],["vieux","alt",5],["jeune","jung",5],["long","lang",5],["court","kurz",5],["près","nah",5],
+ ["loin","weit weg",5],["ouvert","offen",5],["fermé","geschlossen",5],["libre","frei",5],["occupé","besetzt / beschäftigt",5],
+ ["fatigué","müde",5],["content","zufrieden / froh",5],["heureux","glücklich",5],["triste","traurig",5],["calme","ruhig",5],["rapide","schnell",5],["lent","langsam",5],
+ ["quatre","vier",6],["six","sechs",6],["sept","sieben",6],["huit","acht",6],["neuf","neun",6],["onze","elf",6],["douze","zwölf",6],["quinze","fünfzehn",6],
+ ["vingt","zwanzig",6],["trente","dreißig",6],["cinquante","fünfzig",6],["cent","hundert",6],["mille","tausend",6],["premier","erste(r)",6],["demi","halb",6],
+ ["d'accord","okay",12],["bien sûr","natürlich",12],["de rien","gern geschehen",12],["bonjour","guten Tag",12],["salut","hallo / tschüss",12],
+ ["au revoir","auf Wiedersehen",12],["désolé","tut mir leid",12],["alors","also / dann",12],["peut-être","vielleicht",12],["quelque chose","etwas",12],
+ ["rien","nichts",12],["quelqu'un","jemand",12],["chaque","jede(r)",12],["seulement","nur",12],["presque","fast",12],["assez","genug / ziemlich",12],
+ ["trop","zu (viel)",12],["encore une fois","noch einmal",12],["ensemble","zusammen",12],["même","gleich / sogar",12],["sur","auf / über",12],
+ ["depuis","seit",12],["jusqu'à","bis",12]
+];
+WORDS.it=[
+ ["sì","ja",0],["no","nein / nicht",0],["e","und",0],["ma","aber",0],["perché","weil / warum",0],["anche","auch",0],["molto","sehr / viel",0],["più","mehr",0],
+ ["bene","gut (wie?)",0],["male","schlecht (wie?)",0],["qui","hier",0],["lì","dort",0],["adesso","jetzt",0],["oggi","heute",0],["domani","morgen",0],
+ ["sempre","immer",0],["mai","nie",0],["già","schon",0],["ancora","noch",0],["con","mit",0],["senza","ohne",0],["per","für",0],["di","von / aus",0],
+ ["in","in",0],["a","zu / nach / in",0],["per favore","bitte",0],["grazie","danke",0],["scusi","Entschuldigung",0],
+ ["che cosa","was",1],["chi","wer",1],["dove","wo",1],["quando","wann",1],["come","wie",1],["quanto","wie viel",1],["quale","welche(r)",1],["a che ora","um wie viel Uhr",1],
+ ["io","ich",2],["tu","du",2],["lui","er",2],["lei","sie / Sie (höflich)",2],["noi","wir",2],["voi","ihr",2],["loro","sie (mehrere)",2],
+ ["mio / mia","mein / meine",2],["tuo / tua","dein / deine",2],["suo / sua","sein / ihr",2],
+ ["sono","ich bin",3],["è","er/sie/es ist",3],["c'è","es gibt (eins)",3],["ci sono","es gibt (mehrere)",3],["ho","ich habe",3],
+ ["vorrei","ich möchte",3],["voglio","ich will",3],["posso","ich kann",3],["so","ich weiß",3],["vado","ich gehe / fahre",3],
+ ["faccio","ich mache",3],["parlo","ich spreche",3],["mangio","ich esse",3],["bevo","ich trinke",3],["abito","ich wohne",3],
+ ["lavoro","ich arbeite / die Arbeit",3],["mi piace","mir gefällt / ich mag",3],["ho bisogno di","ich brauche",3],["vedo","ich sehe",3],
+ ["capisco","ich verstehe",3],["vengo","ich komme",3],["dico","ich sage",3],
+ ["giorno","Tag",4],["notte","Nacht",4],["settimana","Woche",4],["anno","Jahr",4],["ora","Stunde",4],["tempo","Zeit / Wetter",4],
+ ["casa","Haus / Zuhause",4],["persona","Person",4],["acqua","Wasser",4],["cibo","Essen",4],["soldi","Geld",4],["amico / amica","Freund / Freundin",4],
+ ["famiglia","Familie",4],["gente","Leute",4],["cosa","Sache / Ding",4],["città","Stadt",4],["strada","Straße",4],
+ ["buono","gut",5],["cattivo","schlecht",5],["grande","groß",5],["piccolo","klein",5],["nuovo","neu",5],["tanto","viel",5],["poco","wenig",5],
+ ["tutto","alles",5],["altro","andere(r)",5],["bello","schön",5],
+ ["uno","eins",6],["due","zwei",6],["tre","drei",6],["cinque","fünf",6],["dieci","zehn",6],
+ ["esco","ich gehe aus",3],["arrivo","ich komme an",3],["cerco","ich suche",3],["compro","ich kaufe",3],["pago","ich zahle",3],
+ ["ordino","ich bestelle",3],["aspetto","ich warte",3],["conosco","ich kenne",3],["credo","ich glaube",3],["penso","ich denke",3],
+ ["leggo","ich lese",3],["scrivo","ich schreibe",3],["ascolto","ich höre zu",3],["guardo","ich schaue",3],["gioco","ich spiele",3],
+ ["dormo","ich schlafe",3],["viaggio","ich reise",3],["guido","ich fahre (Auto)",3],["cammino","ich gehe zu Fuß",3],["nuoto","ich schwimme",3],
+ ["cucino","ich koche",3],["aiuto","ich helfe",3],["imparo","ich lerne",3],["studio","ich studiere / lerne",3],["apro","ich öffne",3],
+ ["chiudo","ich schließe",3],["comincio","ich fange an",3],["finisco","ich beende",3],["torno","ich komme zurück",3],["chiamo","ich rufe an",3],
+ ["mi chiamo","ich heiße",3],["prendo","ich nehme",3],["do","ich gebe",3],["metto","ich lege / stelle",3],["porto","ich bringe",3],
+ ["preferisco","ich mag lieber",3],["adoro","ich liebe",3],["mi fa male","mir tut … weh",3],["devo","ich muss",3],["andiamo","los geht's / wir gehen",3],
+ ["pane","Brot",7],["carne","Fleisch",7],["pesce","Fisch",7],["pollo","Hähnchen",7],["uovo","Ei",7],["formaggio","Käse",7],["prosciutto","Schinken",7],
+ ["riso","Reis",7],["verdura","Gemüse",7],["frutta","Obst",7],["insalata","Salat",7],["patata","Kartoffel",7],["pomodoro","Tomate",7],["sale","Salz",7],
+ ["zucchero","Zucker",7],["latte","Milch",7],["caffè","Kaffee / Espresso",7],["tè","Tee",7],["birra","Bier",7],["vino","Wein",7],["succo","Saft",7],
+ ["colazione","Frühstück",7],["pranzo","Mittagessen",7],["cena","Abendessen",7],["dolce","Nachtisch / süß",7],
+ ["macchina","Auto",8],["autobus","Bus",8],["treno","Zug",8],["aereo","Flugzeug",8],["bicicletta","Fahrrad",8],["stazione","Bahnhof",8],["aeroporto","Flughafen",8],
+ ["biglietto","Fahrkarte / Ticket",8],["spiaggia","Strand",8],["mare","Meer",8],["montagna","Berg",8],["paese","Dorf / Land",8],["centro","Zentrum",8],
+ ["negozio","Laden",8],["mercato","Markt",8],["supermercato","Supermarkt",8],["farmacia","Apotheke",8],["ospedale","Krankenhaus",8],["banca","Bank",8],
+ ["albergo","Hotel",8],["ristorante","Restaurant",8],["bagno","Toilette / Bad",8],["piazza","Platz",8],["autostrada","Autobahn",8],["distributore","Tankstelle",8],
+ ["uomo","Mann",9],["donna","Frau",9],["bambino","Kind / Junge",9],["figlio","Sohn",9],["figlia","Tochter",9],["padre","Vater",9],["madre","Mutter",9],
+ ["genitori","Eltern",9],["fratello","Bruder",9],["sorella","Schwester",9],["marito","Ehemann",9],["moglie","Ehefrau",9],
+ ["ragazzo / ragazza","Freund / Freundin (Partner)",9],["signore","Herr",9],["signora","Frau (Anrede)",9],
+ ["lunedì","Montag",10],["martedì","Dienstag",10],["mercoledì","Mittwoch",10],["giovedì","Donnerstag",10],["venerdì","Freitag",10],["sabato","Samstag",10],
+ ["domenica","Sonntag",10],["fine settimana","Wochenende",10],["mese","Monat",10],["minuto","Minute",10],["di mattina","morgens",10],
+ ["di pomeriggio","nachmittags",10],["di sera","abends",10],["ieri","gestern",10],["prima","vorher",10],["dopo","danach / später",10],
+ ["poi","dann",10],["presto","bald / früh",10],["tardi","spät",10],["fra poco","gleich",10],
+ ["sole","Sonne",11],["pioggia","Regen",11],["vento","Wind",11],["caldo","Hitze / warm",11],["freddo","Kälte / kalt",11],["nuvola","Wolke",11],
+ ["albero","Baum",11],["fiore","Blume",11],["cane","Hund",11],["gatto","Katze",11],["fiume","Fluss",11],["bosco","Wald",11],
+ ["caro","teuer",5],["economico","billig",5],["buonissimo","sehr lecker",5],["facile","einfach",5],["difficile","schwierig",5],["importante","wichtig",5],
+ ["migliore","besser",5],["peggiore","schlechter",5],["vecchio","alt",5],["giovane","jung",5],["lungo","lang",5],["corto","kurz",5],["vicino","nah",5],
+ ["lontano","weit weg",5],["aperto","offen",5],["chiuso","geschlossen",5],["libero","frei",5],["occupato","besetzt / beschäftigt",5],
+ ["stanco","müde",5],["contento","zufrieden / froh",5],["felice","glücklich",5],["triste","traurig",5],["tranquillo","ruhig",5],["veloce","schnell",5],["lento","langsam",5],
+ ["quattro","vier",6],["sei","sechs",6],["sette","sieben",6],["otto","acht",6],["nove","neun",6],["undici","elf",6],["dodici","zwölf",6],["quindici","fünfzehn",6],
+ ["venti","zwanzig",6],["trenta","dreißig",6],["cinquanta","fünfzig",6],["cento","hundert",6],["mille","tausend",6],["primo","erste(r)",6],["mezzo","halb",6],
+ ["va bene","okay",12],["certo","klar / natürlich",12],["prego","gern geschehen / bitte",12],["ciao","hallo / tschüss",12],["arrivederci","auf Wiedersehen",12],
+ ["mi dispiace","tut mir leid",12],["allora","also / dann",12],["forse","vielleicht",12],["qualcosa","etwas",12],["niente","nichts",12],["qualcuno","jemand",12],
+ ["nessuno","niemand",12],["ogni","jede(r)",12],["solo","nur / allein",12],["quasi","fast",12],["abbastanza","genug / ziemlich",12],["troppo","zu (viel)",12],
+ ["di nuovo","noch einmal",12],["insieme","zusammen",12],["stesso","gleich / derselbe",12],["su","auf / über",12],["da","seit / von",12],["fino a","bis",12]
+];
+SCN.w={ic:"📚",t:"Wortschatz"};
+/* Grundform der Verben (Infinitiv) */
+const INF={
+es:{"soy":"ser","estoy":"estar","es":"ser","está":"estar","hay":"haber","tengo":"tener","quiero":"querer","puedo":"poder","sé":"saber","voy":"ir","hago":"hacer","hablo":"hablar","como":"comer","bebo":"beber","vivo":"vivir","trabajo":"trabajar","me gusta":"gustar","necesito":"necesitar","veo":"ver","entiendo":"entender","vengo":"venir","digo":"decir","salgo":"salir","llego":"llegar","busco":"buscar","compro":"comprar","pago":"pagar","pido":"pedir","espero":"esperar","conozco":"conocer","creo":"creer","pienso":"pensar","leo":"leer","escribo":"escribir","escucho":"escuchar","miro":"mirar","juego":"jugar","duermo":"dormir","viajo":"viajar","conduzco":"conducir","camino":"caminar","nado":"nadar","cocino":"cocinar","ayudo":"ayudar","aprendo":"aprender","estudio":"estudiar","abro":"abrir","cierro":"cerrar","empiezo":"empezar","termino":"terminar","vuelvo":"volver","llamo":"llamar","me llamo":"llamarse","tomo":"tomar","doy":"dar","pongo":"poner","traigo":"traer","prefiero":"preferir","me encanta":"encantar","me duele":"doler","tengo que":"tener que","vamos":"ir"},
+fr:{"je suis":"être","c'est":"être","il est / elle est":"être","il y a":"avoir","j'ai":"avoir","je voudrais":"vouloir","je veux":"vouloir","je peux":"pouvoir","je sais":"savoir","je vais":"aller","je fais":"faire","je parle":"parler","je mange":"manger","je bois":"boire","j'habite":"habiter","je travaille":"travailler","j'aime":"aimer","j'ai besoin de":"avoir besoin de","je vois":"voir","je comprends":"comprendre","je viens":"venir","je dis":"dire","je sors":"sortir","j'arrive":"arriver","je cherche":"chercher","j'achète":"acheter","je paie":"payer","je commande":"commander","j'attends":"attendre","je connais":"connaître","je crois":"croire","je pense":"penser","je lis":"lire","j'écris":"écrire","j'écoute":"écouter","je regarde":"regarder","je joue":"jouer","je dors":"dormir","je voyage":"voyager","je conduis":"conduire","je marche":"marcher","je nage":"nager","je cuisine":"cuisiner","j'aide":"aider","j'apprends":"apprendre","j'étudie":"étudier","j'ouvre":"ouvrir","je ferme":"fermer","je commence":"commencer","je finis":"finir","je reviens":"revenir","j'appelle":"appeler","je m'appelle":"s'appeler","je prends":"prendre","je donne":"donner","je mets":"mettre","j'apporte":"apporter","je préfère":"préférer","j'adore":"adorer","j'ai mal":"avoir mal","je dois":"devoir","on y va":"y aller"}
+};
+INF.it={"sono":"essere","è":"essere","c'è":"esserci","ci sono":"esserci","ho":"avere","vorrei":"volere","voglio":"volere","posso":"potere","so":"sapere","vado":"andare","faccio":"fare","parlo":"parlare","mangio":"mangiare","bevo":"bere","abito":"abitare","lavoro":"lavorare","mi piace":"piacere","ho bisogno di":"avere bisogno di","vedo":"vedere","capisco":"capire","vengo":"venire","dico":"dire","esco":"uscire","arrivo":"arrivare","cerco":"cercare","compro":"comprare","pago":"pagare","ordino":"ordinare","aspetto":"aspettare","conosco":"conoscere","credo":"credere","penso":"pensare","leggo":"leggere","scrivo":"scrivere","ascolto":"ascoltare","guardo":"guardare","gioco":"giocare","dormo":"dormire","viaggio":"viaggiare","guido":"guidare","cammino":"camminare","nuoto":"nuotare","cucino":"cucinare","aiuto":"aiutare","imparo":"imparare","studio":"studiare","apro":"aprire","chiudo":"chiudere","comincio":"cominciare","finisco":"finire","torno":"tornare","chiamo":"chiamare","mi chiamo":"chiamarsi","prendo":"prendere","do":"dare","metto":"mettere","porto":"portare","preferisco":"preferire","adoro":"adorare","mi fa male":"fare male","devo":"dovere","andiamo":"andare"};
+
+
+/* ============ Speicher ============ */
+const mem={};
+const store={
+  get(k,d){ try{const v=localStorage.getItem("stt_"+k); if(v!==null) return JSON.parse(v);}catch(e){} return k in mem?mem[k]:d; },
+  set(k,v){ mem[k]=v; try{localStorage.setItem("stt_"+k,JSON.stringify(v));}catch(e){} }
+};
+let settings=Object.assign({rate:0.85,auto:true,listen:false,deFirst:false,build:true},store.get("settings",{}));
+let srs=store.get("srs",{});
+const S={lang:store.get("lang","es"),view:"home",scn:null,tab:"ub"};
+if(!L[S.lang]) S.lang="es";
+
+/* ============ Helfer ============ */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
+const lng=()=>L[S.lang];
+const scnTitle=(id,l=lng())=>(l.s[id]&&l.s[id].t)||SCN[id].t;
+function phrases(id,lc=S.lang){ const l=L[lc]; return (l.s[id]?.ph||[]).map((p,i)=>({t:p[0],de:p[1],r:p[2]||"",key:lc+"|"+id+"|"+i,scn:id})); }
+function allPhrases(lc=S.lang){ return L[lc].order.flatMap(id=>phrases(id,lc)); }
+function byKey(key){ const [lc,id,i]=key.split("|");
+  if(id==="w"){ const w=WORDS[lc]?.[+i]; return w?{t:w[0],de:w[1],r:w[3]||"",key,scn:"w",lc,g:w[2],inf:w[2]===3?(INF[lc]?.[w[0]]||""):""}:null; }
+  const p=L[lc]?.s[id]?.ph[+i]; return p?{t:p[0],de:p[1],r:p[2]||"",key,scn:id,lc}:null; }
+function tgtHTML(t,r,lc=S.lang,inf){ const l=L[lc]; return `${inf?`<div class="inf">(${esc(inf)})</div>`:""}<div class="tgt" lang="${l.code}"${l.rtl?' dir="rtl"':''}>${esc(t)}</div>${r?`<div class="rom">${esc(r)}</div>`:""}`; }
+
+/* ============ Sprachausgabe ============ */
+let voices=[];
+function loadVoices(){ try{voices=speechSynthesis.getVoices()||[]}catch(e){voices=[]} }
+if("speechSynthesis" in window){ loadVoices(); speechSynthesis.onvoiceschanged=()=>{loadVoices(); if(S.view==="settings") render();}; }
+function voiceFor(code){ const pre=code.slice(0,2); return voices.find(v=>v.lang===code)||voices.find(v=>v.lang&&v.lang.replace("_","-").toLowerCase().startsWith(pre)); }
+function speak(text,opts={}){
+  if(!("speechSynthesis" in window)) return;
+  const l=L[opts.lc||S.lang];
+  try{
+    if(!opts.queue) speechSynthesis.cancel();
+    const clean=text.replace(/…/g,", ").replace(/\s\/\s/g,". ");
+    const u=new SpeechSynthesisUtterance(clean);
+    u.lang=l.code; const v=voiceFor(l.code); if(v) u.voice=v;
+    u.rate=opts.slow?Math.max(0.45,settings.rate-0.3):settings.rate;
+    if(opts.onend) u.onend=opts.onend;
+    speechSynthesis.speak(u);
+  }catch(e){}
+}
+
+/* ============ Wiederholung (Leitner) ============ */
+const IV=[0,1,2,4,8,21].map(d=>d*864e5);
+const FACH_TXT=["sofort","nach 1 Tag","nach 2 Tagen","nach 4 Tagen","nach 8 Tagen","nach 3 Wochen"];
+function saveSrs(){ store.set("srs",srs); updateBadge(); try{ checkUnlocks(); }catch(e){} }
+function addDeck(key){ if(!srs[key]){ srs[key]={b:0,d:Date.now()}; saveSrs(); } }
+function removeDeck(key){ delete srs[key]; saveSrs(); }
+function setFach(key,b){ srs[key]={b,d:Date.now()+IV[b]}; saveSrs(); }
+function grade(key,r){ if(r===true) r=1; if(r===false) r=0; const c=srs[key]||{b:0,d:0}; c.b=r===0?0:r===1?(c.b>=4?3:Math.min(c.b+1,3)):(c.b>=4?5:4); c.d=Date.now()+IV[c.b]; srs[key]=c; saveSrs(); }
+function dueKeys(lc=S.lang){ const now=Date.now(); return Object.keys(srs).filter(k=>k.startsWith(lc+"|")&&srs[k].d<=now&&byKey(k)).sort((a,b)=>srs[a].b-srs[b].b); }
+function known(key){ return (srs[key]?.b||0)>=4; }
+for(const k in srs){ if(srs[k].b>5) srs[k].b=5; }
+function updateBadge(){ const n=dueKeys().length, b=$("#dueBadge"); b.hidden=!n; b.textContent=n; }
+
+/* ============ KI-Gesprächspartner ============ */
+let sampleFn=null;
+(async()=>{ try{ if(window.claude&&typeof claude.use==="function"){ sampleFn=await claude.use("sample"); if(sampleFn&&S.view==="scn") render(); } }catch(e){ sampleFn=null; } })();
+
+/* ============ Render ============ */
+function renderLangs(){
+  $("#langs").innerHTML=LANG_ORDER.map(k=>`<button class="chip${k===S.lang?" on":""}" data-lang="${k}">${esc(L[k].native)}<small>${k===L[k].native?"":esc(L[k].name)}</small></button>`).join("");
+}
+function render(){
+  renderLangs(); updateBadge();
+  document.querySelectorAll("nav.bot button").forEach(b=>b.classList.toggle("on",b.dataset.v===S.view||(S.view==="scn"&&b.dataset.v==="home")||(["wlearn","fach"].includes(S.view)&&b.dataset.v==="words")||(S.view==="game"&&b.dataset.v==="games")||(S.view==="gram"&&b.dataset.v==="home")||(S.view==="cards"&&RV&&b.dataset.v===(RV.back==="review"?"review":"words"))));
+  const app=$("#app");
+  if(S.view==="home") app.innerHTML=homeHTML();
+  else if(S.view==="words") app.innerHTML=wordsHTML();
+  else if(S.view==="wlearn") renderLearn(app);
+  else if(S.view==="fach") app.innerHTML=fachHTML();
+  else if(S.view==="cards") renderCards(app);
+  else if(S.view==="games") app.innerHTML=gamesHTML();
+  else if(S.view==="game") renderGame(app);
+  else if(S.view==="gram") renderGram(app);
+  else if(S.view==="scn") renderScn(app);
+  else if(S.view==="review") renderReview(app);
+  else if(S.view==="settings") app.innerHTML=settingsHTML();
+}
+/* --- Wortschatz & Karteikasten --- */
+const wKeys=(lc=S.lang)=>(WORDS[lc]||[]).map((_,i)=>lc+"|w|"+i);
+const wSets=()=>{ const N=wKeys().length; return [{id:"a",t:"Top 100",a:0,b:Math.min(100,N)},{id:"b",t:"101–"+N,a:100,b:N}].filter(s=>s.a<N); };
+const fachOf=k=>srs[k]?srs[k].b:-1;
+function boxCounts(keys){ const c=[0,0,0,0,0,0]; keys.forEach(k=>{ if(srs[k]) c[srs[k].b]++; }); return c; }
+const deckKeys=(lc=S.lang)=>Object.keys(srs).filter(k=>k.startsWith(lc+"|")&&byKey(k));
+function kastenHTML(keys,opts={}){
+  const c=boxCounts(keys), max=Math.max(1,...c), flex=[1.55,1.35,1.2,1.05,.92,.8], hh=[150,138,126,114,102,90];
+  return `<div class="kasten${opts.static?" static":""}">`+c.map((n,b)=>`<button class="fach f${b}${opts.on===b?" on":""}" style="flex:${flex[b]};height:${hh[b]}px" ${opts.static?"tabindex=-1":`data-fach="${b}"`}><span class="cards" style="height:${n?Math.max(10,Math.round(n/max*88)):0}%"></span><span class="num">${n}</span><span class="fl">Fach ${b}</span></button>`).join("")+`</div>`;
+}
+function fselHTML(k){ const f=fachOf(k); return `<select class="fsel" data-fsel="${k}" aria-label="Fach"><option value="-1" ${f<0?"selected":""}>neu</option>${[0,1,2,3,4,5].map(b=>`<option value="${b}" ${f===b?"selected":""}>Fach ${b}</option>`).join("")}</select>`; }
+function wrowHTML(k,l){ const p=byKey(k); return `<div class="wrow"><div class="w" lang="${l.code}">${p.inf?`<div class="inf">(${esc(p.inf)})</div>`:""}${esc(p.t)}</div><div class="g">${esc(p.de)}</div><button class="ib" data-say="${k}">🔊</button>${fselHTML(k)}</div>`; }
+function wordsHTML(){
+  const l=lng(), list=WORDS[S.lang];
+  if(!list) return `<div class="sec">Wortschatz · ${esc(l.name)}</div><div class="card empty"><div style="font-size:42px">📚</div><h3 style="margin:8px 0">Kommt noch</h3><button class="btn" data-lang="es">Zu Spanisch</button></div>`;
+  const keys=wKeys(), N=keys.length, deck=deckKeys(), inDeck=deck.length, due=dueKeys().length;
+  const sets=wSets(), segs=[{id:"pfad",t:"🧭 Lernpfad"},...sets], cur=segs.find(s=>s.id===(settings.wset||"pfad"))||segs[0], cnt=settings.wcount||5;
+  const newIn=s=>s.id==="pfad"?pathKeys(999).length:keys.slice(s.a,s.b).filter(k=>!srs[k]).length;
+  const g=nextGoal();
+  const ex={fr:"„je voudrais un café“ = ich möchte einen Kaffee",it:"„vorrei un caffè“ = ich möchte einen Kaffee"}[S.lang]||"„quiero agua“ = ich möchte Wasser";
+  let h=`<div class="sec">Wortschatz · ${esc(l.name)} · ${N} Wörter</div>
+  <div class="card set"><label>Neue Wörter lernen</label>
+   <div class="seg">${segs.map(s=>`<button class="${s.id===cur.id?"on":""}" data-wset="${s.id}">${esc(s.t)}<small>${s.id==="pfad"&&g?"→ "+SCN[g.id].ic+" "+esc(scnTitle(g.id)):newIn(s)+" neu"}</small></button>`).join("")}</div>
+   <div class="seg" style="margin-top:6px">${[5,10].map(n=>`<button class="${cnt===n?"on":""}" data-wcount="${n}">${n} Wörter</button>`).join("")}</div>
+   <div class="rowbtn"><button class="btn" data-act="wNew" ${newIn(cur)?"":"disabled style=\"opacity:.5\""}>▶ Lernen starten</button></div></div>
+  <div class="card set"><label>Fortschritt · Karteikasten <span class="muted" style="font-size:13px">${inDeck} Karten</span></label>
+   <div id="kastenWrap">${kastenHTML(deck)}</div>
+   <div class="rowbtn"><button class="btn alt" data-act="wDue" ${due?"":"disabled style=\"opacity:.5\""}>🔁 Fällige${due?` (${due})`:""}</button><button class="btn ghost" data-act="wMix" ${inDeck?"":"disabled style=\"opacity:.5\""}>🔀 Alle gemischt</button></div></div>`;
+  sets.forEach(s=>{
+    const tk=keys.slice(s.a,s.b), tin=tk.filter(k=>srs[k]).length;
+    h+=`<details class="card" style="margin:14px 0 10px;padding:4px 12px 8px"><summary style="font-weight:800;padding:10px 2px;cursor:pointer">Wortliste ${esc(s.t)} <span class="muted" style="font-weight:600">· ${tin}/${tk.length} im Kasten</span></summary>`;
+    WGROUPS.forEach((g,gi)=>{
+      const items=tk.filter(k=>byKey(k).g===gi); if(!items.length) return;
+      h+=`<div class="sec" style="margin-top:12px">${esc(g)}</div><div class="wlist">`+items.map(k=>wrowHTML(k,l)).join("")+`</div>`;
+    });
+    h+=`</details>`;
+  });
+  return h;
+}
+function fachHTML(){
+  const b=S.fach, l=lng(), all=deckKeys(), keys=all.filter(k=>fachOf(k)===b), ws=keys.filter(k=>k.includes("|w|")), ps=keys.filter(k=>!k.includes("|w|"));
+  let h=`<button class="back" data-go="${S.fachBack||"words"}">‹ Zurück</button>
+  <div class="scnHead"><div class="ic">🗂️</div><div><h2>Fach ${b}</h2><div class="muted" style="font-size:14px">${ws.length} Wörter · ${ps.length} Sätze · kommt ${FACH_TXT[b]} wieder</div></div></div>
+  ${kastenHTML(all,{on:b})}
+  <div class="rowbtn" style="margin-bottom:12px"><button class="btn" data-act="fachLearn" ${keys.length?"":"disabled style=\"opacity:.5\""}>▶ Diese ${keys.length} Karten lernen</button></div>`;
+  if(!keys.length) return h+`<div class="card empty"><p class="muted">Leer</p></div>`;
+  if(ws.length) h+=`<div class="sec">📚 Wörter</div><div class="card wlist">${ws.map(k=>wrowHTML(k,l)).join("")}</div>`;
+  if(ps.length) h+=`<div class="sec">💬 Sätze</div><div class="card wlist">${ps.map(k=>wrowHTML(k,l)).join("")}</div>`;
+  return h;
+}
+function mixKeys(keys,n=20){ const w=[6,5,4,3,2,1], pool=keys.filter(k=>srs[k]).map(k=>({k,w:w[srs[k].b]})), out=[];
+  while(out.length<n&&pool.length){ let r=Math.random()*pool.reduce((s,x)=>s+x.w,0), i=0; while((r-=pool[i].w)>0) i++; out.push(pool.splice(i,1)[0].k); }
+  return out; }
+
+/* --- Neue Wörter lernen (mehrere Runden pro Wort) --- */
+let LS=null;
+function startLearn(keys,back="words"){
+  P=null; keys.forEach(addDeck);
+  const steps=[];
+  for(let i=0;i<keys.length;i+=3){ const ch=keys.slice(i,i+3);
+    ch.forEach(k=>steps.push({k,ty:"intro"})); shuffle(ch).forEach(k=>steps.push({k,ty:"mcDE"})); shuffle(ch).forEach(k=>steps.push({k,ty:"mcT"})); }
+  shuffle(keys).forEach(k=>steps.push({k,ty:"listen"}));
+  shuffle(keys).forEach(k=>steps.push({k,ty:"recall"}));
+  LS={back,keys,steps,i:0,ans:null,flip:false,opts:null,res:{},again:{}};
+  S.view="wlearn"; prepStep(); render(); window.scrollTo(0,0);
+}
+function wordOpts(key){
+  const p=byKey(key), lc=key.split("|")[0], me=+key.split("|")[2], list=WORDS[lc];
+  const ok=i=>i!==me&&list[i][1]!==p.de&&list[i][0]!==p.t;
+  const same=shuffle(list.map((_,i)=>i).filter(i=>ok(i)&&list[i][2]===p.g)), other=shuffle(list.map((_,i)=>i).filter(i=>ok(i)&&list[i][2]!==p.g));
+  return shuffle([p,...[...same.slice(0,2),...other].slice(0,3).map(i=>byKey(lc+"|w|"+i))]);
+}
+function prepStep(){ const s=LS.steps[LS.i]; LS.ans=null; LS.flip=false; LS.opts=s&&["mcDE","mcT","listen"].includes(s.ty)?wordOpts(s.k):null;
+  if(s&&settings.auto&&["intro","mcDE","listen"].includes(s.ty)) setTimeout(()=>speak(byKey(s.k).t),150); }
+function nextStep(){ LS.i++; prepStep(); render(); window.scrollTo(0,0); }
+function optsHTML(attr,label){ const s=LS.steps[LS.i];
+  return `<div class="opts">`+LS.opts.map((o,i)=>{ let c=""; if(LS.ans!==null){ if(o.key===s.k) c=" ok"; else if(i===LS.ans) c=" bad"; }
+    return `<button class="opt${c}" data-${attr}="${i}" ${LS.ans!==null?"disabled":""}>${label(o)}</button>`; }).join("")+`</div>`; }
+function renderLearn(app){
+  const n=LS.steps.length, s=LS.steps[LS.i], l=lng();
+  let h=`<button class="back" data-go="${LS.back}">‹ Abbrechen</button><div class="qhead"><span>Neue Wörter</span><span>${Math.min(LS.i,n)}/${n}</span></div><div class="bar" style="margin-bottom:14px"><i style="width:${Math.round(LS.i/n*100)}%"></i></div>`;
+  if(!s){
+    h+=`<div class="card done"><div class="big">🎉</div><h3>${LS.keys.length} Wörter geübt!</h3>
+    <div class="card wlist" style="text-align:left;margin:12px 0">${LS.keys.map(k=>{const p=byKey(k);return `<div class="wrow"><div class="w" lang="${l.code}">${p.inf?`<div class="inf">(${esc(p.inf)})</div>`:""}${esc(p.t)}</div><div class="g">${esc(p.de)}</div><span class="fchip f${fachOf(k)}">Fach ${fachOf(k)}</span></div>`}).join("")}</div>
+    <div class="rowbtn"><button class="btn ghost" data-go="${LS.back}">Fertig</button><button class="btn" data-act="wNew">Weitere lernen</button></div></div>`;
+    app.innerHTML=h; return;
+  }
+  const p=byKey(s.k), say=`<button class="ib" style="margin:8px auto 0" data-say="${p.key}">🔊</button>`;
+  if(s.ty==="intro") h+=`<div class="card fc"><div class="lbl muted" style="font-size:13px;font-weight:700">Neues Wort</div>${tgtHTML(p.t,p.r,S.lang,p.inf)}${say}<div class="de" style="margin-top:6px">${esc(p.de)}</div></div><div class="rowbtn"><button class="btn" data-act="lsNext">Weiter ›</button></div>`;
+  else if(s.ty==="mcDE") h+=`<div class="card qcard"><div class="lbl">Was bedeutet das?</div>${tgtHTML(p.t,p.r,S.lang,p.inf)}${say}</div>`+optsHTML("lo",o=>esc(o.de));
+  else if(s.ty==="mcT") h+=`<div class="card qcard"><div class="lbl">Wie heißt das auf ${esc(l.name)}?</div><div class="tgt" style="color:var(--ink)">${esc(p.de)}</div></div>`+optsHTML("lo",o=>tgtHTML(o.t,o.r,S.lang,o.inf));
+  else if(s.ty==="listen") h+=`<div class="card qcard"><div class="lbl">Hör zu – welches Wort ist das?</div><button class="ib" style="margin:4px auto;width:64px;height:64px;font-size:28px" data-say="${p.key}">🔊</button></div>`+optsHTML("lo",o=>tgtHTML(o.t,o.r,S.lang,o.inf));
+  else if(s.ty==="recall"){
+    h+=`<div class="card fc"><div class="muted" style="font-size:13px;font-weight:700">Aus dem Kopf: Wie sagt man …</div><div class="de">${esc(p.de)}</div>${LS.flip?`<div style="margin-top:10px">${tgtHTML(p.t,p.r,S.lang,p.inf)}</div>${say}`:""}</div>`;
+    h+=LS.flip?rate3HTML("lr",-1):`<div class="rowbtn"><button class="btn" data-act="lsFlip">Aufdecken</button></div>`;
+  }
+  if(LS.ans!==null&&LS.opts&&LS.opts[LS.ans].key!==s.k) h+=`<div class="rowbtn"><button class="btn" data-act="lsNext">Weiter ›</button></div>`;
+  app.innerHTML=h;
+}
+function pickLearn(i){
+  const s=LS.steps[LS.i]; if(LS.ans!==null) return; LS.ans=i;
+  const ok=LS.opts[i].key===s.k, p=byKey(s.k);
+  if(s.ty!=="mcDE"||!ok) speak(p.t);
+  if(ok){ render(); setTimeout(()=>{ if(LS&&LS.steps[LS.i]===s&&S.view==="wlearn") nextStep(); },850); }
+  else { LS.steps.splice(Math.min(LS.i+4,LS.steps.length),0,{k:s.k,ty:s.ty}); render(); }
+}
+function rateLearn(r){
+  const s=LS.steps[LS.i]; setFach(s.k,[0,1,4][r]); LS.res[s.k]=r;
+  if(r===0&&!LS.again[s.k]){ LS.again[s.k]=1; LS.steps.push({k:s.k,ty:"mcT"},{k:s.k,ty:"recall"}); }
+  nextStep();
+}
+
+/* --- Karteikarten-Durchgang (Wiederholen) --- */
+let RV=null;
+function nextFach(b,r){ return r===0?0:r===1?(b>=4?3:Math.min(b+1,3)):(b>=4?5:4); }
+function rate3HTML(attr,b){
+  const lab=r=>b<0?"":` <small>→ Fach ${nextFach(b,r)}</small>`;
+  return `<div class="rowbtn r3"><button class="btn bad" data-${attr}="0">Wusste ich nicht${lab(0)}</button><button class="btn" data-${attr}="1">Wusste ich${lab(1)}</button><button class="btn ok" data-${attr}="2">Kann ich${lab(2)}</button></div>`;
+}
+function startCards(keys,title,back){ RV={queue:keys.filter(k=>byKey(k)),title,back,flip:false,total:keys.length,stats:[0,0,0]}; S.view="cards"; render(); window.scrollTo(0,0); autoSpeakRV(); }
+const rvFront=k=>(srs[k]?.b??0)>=2?"de":"t";
+function autoSpeakRV(){ const k=RV&&RV.queue[0]; if(k&&settings.auto&&rvFront(k)==="t") setTimeout(()=>speak(byKey(k).t),150); }
+function renderCards(app){
+  const backLbl={words:"Wörter",fach:"Fach "+S.fach,review:"Wiederholen"}[RV.back]||"Zurück";
+  let h=`<button class="back" data-go="${RV.back}">‹ ${esc(backLbl)}</button>`;
+  if(!RV.queue.length){
+    h+=`<div class="card done"><div class="big">✅</div><h3>Durchgang geschafft!</h3><p class="muted">Kann ich: ${RV.stats[2]} · Wusste ich: ${RV.stats[1]} · Nochmal: ${RV.stats[0]}</p><div class="rowbtn"><button class="btn" data-go="${RV.back}">Fertig</button></div></div>`;
+    app.innerHTML=h; return;
+  }
+  const k=RV.queue[0], p=byKey(k), b=fachOf(k), front=rvFront(k), say=`<button class="ib" style="margin:8px auto 0" data-say="${k}">🔊</button>`;
+  h+=`<div class="qhead"><span>${esc(RV.title)}</span><span><span class="fchip f${b}">Fach ${b}</span> · noch ${RV.queue.length}</span></div><div class="card fc">`;
+  if(front==="t") h+=`<div class="muted" style="font-size:13px;font-weight:700">Was bedeutet das?</div>${tgtHTML(p.t,p.r,S.lang,p.inf)}${say}${RV.flip?`<div class="de" style="margin-top:10px">${esc(p.de)}</div>`:""}`;
+  else h+=`<div class="muted" style="font-size:13px;font-weight:700">Wie sagt man …</div><div class="de">${esc(p.de)}</div>${RV.flip?`<div style="margin-top:10px">${tgtHTML(p.t,p.r,S.lang,p.inf)}</div>${say}`:""}`;
+  h+=`</div>`+(RV.flip?rate3HTML("cr",b):`<div class="rowbtn"><button class="btn" data-act="cFlip">Aufdecken</button></div>`);
+  app.innerHTML=h;
+}
+function rateCard(r){ const k=RV.queue.shift(); grade(k,r); RV.stats[r]++; if(r===0) RV.queue.push(k); RV.flip=false; render(); autoSpeakRV(); }
+
+/* --- Satzbau mit Wort-Bausteinen --- */
+const noSpace=lc=>lc==="ja"||lc==="th";
+function toks(t,r,lc=S.lang){ const src=noSpace(lc)&&r?r:t; return src.split(/\s+/).map(w=>w.replace(/^[¡¿"«(]+|[.,!?;:…"»)。、！？]+$/g,"")).filter(w=>w&&w!=="/"); }
+const norm=w=>w.toLowerCase().replace(/[’']/g,"'");
+function wordPool(lc=S.lang){ const l=L[lc], s=new Set();
+  l.order.forEach(id=>{ (l.s[id].ph||[]).forEach(p=>toks(p[0],p[2],lc).forEach(w=>s.add(w))); (l.s[id].dlg||[]).forEach(x=>toks(x[1],x[3],lc).forEach(w=>s.add(w))); });
+  return [...s]; }
+function makeTiles(t,r){
+  const target=toks(t,r), tn=new Set(target.map(norm));
+  const extra=shuffle(wordPool().filter(w=>!tn.has(norm(w)))).slice(0,target.length>6?2:3);
+  return shuffle([...target,...extra]).map((w,id)=>({w,id}));
+}
+
+/* ============ Lernpfad, Freischalten, Sterne ============ */
+const UNLOCK_PCT=0.6;
+const vocabCache={};
+const isLearned=k=>!!srs[k]&&srs[k].b>=1;
+function sceneVocab(id,lc=S.lang){
+  const ck=lc+"|"+id; if(vocabCache[ck]) return vocabCache[ck];
+  const list=WORDS[lc]; if(!list) return vocabCache[ck]=[];
+  const pt=new Set(); phrases(id,lc).forEach(p=>toks(p.t,p.r,lc).forEach(w=>pt.add(norm(w))));
+  const out=[]; list.forEach((w,i)=>{ const alts=w[0].split(/\s*\/\s*/);
+    if(alts.some(a=>{ const t=a.split(/\s+/).map(x=>norm(x.replace(/^[¡¿]+|[.,!?]+$/g,""))).filter(Boolean); return t.length&&t.every(x=>pt.has(x)); })) out.push(lc+"|w|"+i); });
+  return vocabCache[ck]=out;
+}
+function learnedCount(lc=S.lang){ return wKeys(lc).filter(isLearned).length; }
+let unl=store.get("unl",{}), chatDone=store.get("chatDone",{});
+function sceneState(id,lc=S.lang){
+  const v=sceneVocab(id,lc), have=v.filter(isLearned).length, need=Math.max(1,Math.ceil(v.length*UNLOCK_PCT));
+  const locked=!!WORDS[lc]&&v.length>0&&!(unl[lc]||[]).includes(id)&&have<need;
+  const ps=phrases(id,lc), pk=ps.filter(p=>isLearned(p.key)).length;
+  let stars=locked?0:1;
+  if(!locked&&pk>=Math.ceil(ps.length*0.7)) stars=2;
+  if(stars===2&&(!L[lc].s[id].dlg||(chatDone[lc]||[]).includes(id))) stars=3;
+  const missing=v.filter(k=>!isLearned(k)).sort((a,b)=>(srs[a]?1:0)-(srs[b]?1:0)||(+a.split("|")[2])-(+b.split("|")[2]));
+  return {locked,have:Math.min(have,need),need,missing,stars,pk,pt:ps.length};
+}
+function nextGoal(lc=S.lang){ for(const id of L[lc].order){ const st=sceneState(id,lc); if(st.locked) return {id,st}; } return null; }
+function pathKeys(n){ const g=nextGoal(); let ks=g?g.st.missing.slice():[]; if(ks.length<n) ks=ks.concat(wKeys().filter(k=>!srs[k]&&!ks.includes(k))); return ks.slice(0,n); }
+let toastT=null;
+function toast(msg){ const t=$("#toast"); if(!t) return; t.textContent=msg; t.classList.add("show"); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove("show"),3500); }
+function checkUnlocks(silent){
+  const lc=S.lang; if(!WORDS[lc]) return;
+  const list=unl[lc]||(unl[lc]=[]), newly=[];
+  for(const id of L[lc].order){ if(list.includes(id)) continue; const v=sceneVocab(id,lc); if(!v.length) continue;
+    if(v.filter(isLearned).length>=Math.ceil(v.length*UNLOCK_PCT)){ list.push(id); newly.push(SCN[id].ic+" "+scnTitle(id,L[lc])); } }
+  if(newly.length) store.set("unl",unl);
+  const wc=learnedCount(lc), seen=store.get("seenWc",{}), prev=seen[lc]??(silent?wc:0);
+  if(wc>prev) [...(GRAM[lc]||[]).map(g=>[g.need,"📐 "+g.t]),...GAMES.map(g=>[g.need,g.ic+" "+g.t])].forEach(([n,t])=>{ if(n>prev&&n<=wc) newly.push(t); });
+  if(seen[lc]!==Math.max(wc,prev)){ seen[lc]=Math.max(wc,prev); store.set("seenWc",seen); }
+  if(newly.length&&!silent) toast("🔓 Freigeschaltet: "+newly.join(", "));
+}
+function homeHTML(){
+  const l=lng(), due=dueKeys().length, hasW=!!WORDS[S.lang];
+  const sts=Object.fromEntries(l.order.map(id=>[id,sceneState(id)]));
+  let h="";
+  if(hasW){
+    const wc=learnedCount(), un=l.order.filter(id=>!sts[id].locked).length, stars=l.order.reduce((s,id)=>s+sts[id].stars,0), g=nextGoal();
+    h+=`<div class="card hero"><div class="hstat"><b>${wc}</b><span>📚 Wörter</span></div><div class="hstat"><b>${un}/${l.order.length}</b><span>🔓 Themen</span></div><div class="hstat"><b>${stars}</b><span>⭐ Sterne</span></div></div>`;
+    if(g) h+=`<div class="card goal"><div class="gi">${SCN[g.id].ic}</div><div style="flex:1;min-width:0"><div class="gl">🎯 NÄCHSTES ZIEL</div><b>${esc(scnTitle(g.id))}</b><div class="bar" style="margin-top:6px"><i style="width:${Math.round(g.st.have/g.st.need*100)}%"></i></div><div class="muted" style="font-size:12px;margin-top:3px">${g.st.have}/${g.st.need} Wörter</div></div><button class="btn" data-act="goalLearn">▶</button></div>`;
+  }
+  if(due) h+=`<div class="card due"><b>🔁 ${due} fällig</b><button class="btn alt small" data-go="review">Los</button></div>`;
+  h+=`<div class="sec">Themen · ${esc(l.name)}</div><div class="grid">`;
+  for(const id of l.order){
+    const st=sts[id];
+    if(st.locked) h+=`<button class="card scn locked" data-scn="${id}"><div class="ic">${SCN[id].ic}</div><div class="tt">${esc(scnTitle(id))}</div><div class="meta">🔒 ${st.have}/${st.need} Wörter</div><div class="bar"><i style="width:${Math.round(st.have/st.need*100)}%"></i></div></button>`;
+    else h+=`<button class="card scn" data-scn="${id}"><div class="ic">${SCN[id].ic}</div><div class="tt">${esc(scnTitle(id))}</div><div class="meta stars">${"⭐".repeat(st.stars)}<span class="so">${"⭐".repeat(3-st.stars)}</span></div><div class="bar"><i style="width:${st.pt?Math.round(st.pk/st.pt*100):0}%"></i></div></button>`;
+  }
+  h+=`</div>`;
+  const gr=GRAM[S.lang];
+  if(gr){ const wc=learnedCount(), done=store.get("gramDone",{})[S.lang]||[];
+    h+=`<div class="sec">📐 Grammatik</div><div class="grid">`+gr.map((g,i)=>{ const lk=wc<g.need;
+      return `<button class="card scn${lk?" locked":""}" data-gram="${i}"><div class="ic">${g.ic}</div><div class="tt">${esc(g.t)}</div><div class="meta">${lk?`🔒 ab ${g.need} Wörtern`:done.includes(i)?"✅":"▶"}</div>${lk?`<div class="bar"><i style="width:${Math.round(wc/g.need*100)}%"></i></div>`:""}</button>`; }).join("")+`</div>`; }
+  return h;
+}
+function lockBanner(id){
+  const st=sceneState(id); if(!st.locked) return "";
+  return `<div class="card lockban"><b>🔒 ${st.have}/${st.need} Wörter</b><div class="chips">${st.missing.slice(0,14).map(k=>`<span class="wchip" lang="${lng().code}">${esc(byKey(k).t)}</span>`).join("")}${st.missing.length>14?`<span class="wchip">+${st.missing.length-14}</span>`:""}</div><button class="btn small" data-act="scnLearn">▶ Diese Wörter lernen</button></div>`;
+}
+
+/* ============ Spiele ============ */
+const GAMES=[{id:"memory",ic:"🃏",t:"Memory",need:10},{id:"scr",ic:"🔀",t:"Buchstabensalat",need:20},{id:"hang",ic:"🌳",t:"Baum-Raten",need:30},{id:"xw",ic:"✏️",t:"Kreuzworträtsel",need:40}];
+const KB={es:"abcdefghijklmnñopqrstuvwxyz",fr:"abcdefghijklmnopqrstuvwxyz",it:"abcdefghijklmnopqrstuvwxyz"};
+const baseCh=(c,lc)=>{ c=c.toLowerCase(); if(lc==="es"&&c==="ñ") return "ñ"; return c.normalize("NFD").replace(/[̀-ͯ]/g,""); };
+let G=null;
+function gamesHTML(){
+  const l=lng();
+  if(!WORDS[S.lang]) return `<div class="sec">🎮 Spiele</div><div class="card empty"><h3 style="margin:8px 0">Kommt noch</h3><button class="btn" data-lang="es">Zu Spanisch</button></div>`;
+  const wc=learnedCount();
+  return `<div class="sec">🎮 Spiele · ${esc(l.name)}</div><div class="grid">`+GAMES.map(g=>{ const lk=wc<g.need;
+    return `<button class="card scn${lk?" locked":""}" data-game="${g.id}"><div class="ic">${g.ic}</div><div class="tt">${g.t}</div><div class="meta">${lk?`🔒 ab ${g.need} Wörtern`:"▶ Spielen"}</div>${lk?`<div class="bar"><i style="width:${Math.round(wc/g.need*100)}%"></i></div>`:""}</button>`; }).join("")+`</div>`;
+}
+function startGame(id){
+  const pool=shuffle(wKeys().filter(isLearned));
+  if(id==="memory"){ const ks=pool.slice(0,6); G={type:"memory",cards:shuffle(ks.flatMap(k=>[{k,side:"t"},{k,side:"de"}])).map((c,i)=>({...c,i,open:false,done:false})),sel:[],moves:0,pairs:0,n:ks.length,lock:false}; }
+  else if(id==="scr"){ const ks=pool.filter(k=>/^[\p{L}]{3,10}$/u.test(byKey(k).t)).slice(0,8); G={type:"scr",ks,i:0,right:0}; setupScr(); }
+  else if(id==="xw"){ startCrossword(); }
+  else if(id==="hang"){ const ks=pool.filter(k=>{ const t=byKey(k).t; return t.replace(/[^\p{L}]/gu,"").length>=3; }); G={type:"hang",ks,i:0,won:0}; setupHang(); }
+  S.view="game"; render(); window.scrollTo(0,0);
+}
+function setupScr(){ const k=G.ks[G.i]; if(!k) return; const t=byKey(k).t; let letters; do{ letters=shuffle([...t]).map((c,id)=>({c,id})); }while(t.length>1&&letters.map(x=>x.c).join("")===t);
+  Object.assign(G,{k,t,letters,built:[],marks:null,tries:0,ok:false}); }
+function setupHang(){ const k=G.ks[G.i%G.ks.length]; Object.assign(G,{k,t:byKey(k).t,guessed:[],wrong:0,max:7,over:false,win:false}); }
+function treeSVG(left,max){ const pos=[[62,40],[92,28],[122,42],[50,66],[84,58],[116,66],[142,58]].slice(0,max);
+  return `<svg viewBox="0 0 190 150" width="190" height="150" aria-hidden="true"><line x1="18" y1="138" x2="172" y2="138" stroke="#9aa5a8" stroke-width="3" stroke-linecap="round"/><rect x="86" y="82" width="16" height="56" rx="4" fill="#8a5a33"/><path d="M94 98 L66 76 M94 92 L124 72 M94 86 L94 52" stroke="#8a5a33" stroke-width="6" stroke-linecap="round"/>`+
+  pos.map(([x,y],i)=>i<left?`<ellipse cx="${x}" cy="${y}" rx="18" ry="14" fill="#4cb27a"/><ellipse cx="${x-4}" cy="${y-4}" rx="7" ry="5" fill="#6fcf95" opacity=".7"/>`:`<ellipse cx="${30+i*20}" cy="133" rx="9" ry="4" fill="#d9a441" transform="rotate(${i%2?12:-14} ${30+i*20} 133)"/>`).join("")+`</svg>`; }
+function hangDone(){ const kb=KB[S.lang]; return [...G.t].every(c=>!kb.includes(baseCh(c,S.lang))||G.guessed.includes(baseCh(c,S.lang))); }
+function renderGame(app){
+  const l=lng(); let h=`<button class="back" data-go="games">‹ Spiele</button>`;
+  if(G.type==="memory"){
+    h+=`<div class="qhead"><span>🃏 Memory</span><span>Züge: ${G.moves} · Paare: ${G.pairs}/${G.n}</span></div>`;
+    if(G.pairs===G.n) h+=`<div class="card done"><div class="big">🎉</div><h3>${G.moves} Züge</h3><div class="rowbtn"><button class="btn" data-act="gAgain">Nochmal</button></div></div>`;
+    else h+=`<div class="mem">`+G.cards.map(c=>{ const p=byKey(c.k), show=c.open||c.done;
+      return `<button class="mc${c.done?" done":c.open?" open":""}${c.side==="de"?" de":""}" data-mc="${c.i}" ${c.side==="t"?`lang="${l.code}"`:""}>${show?esc(c.side==="t"?p.t:p.de):"?"}</button>`; }).join("")+`</div>`;
+  } else if(G.type==="scr"){
+    if(!G.ks.length||G.i>=G.ks.length){ h+=`<div class="card done"><div class="big">${G.ks.length&&G.right===G.ks.length?"🏆":"💪"}</div><h3>${G.right} von ${G.ks.length}</h3><div class="rowbtn"><button class="btn" data-act="gAgain">Nochmal</button></div></div>`; }
+    else { const p=byKey(G.k), used=new Set(G.built);
+      h+=`<div class="qhead"><span>🔀 Wort ${G.i+1}/${G.ks.length}</span><span>✓ ${G.right}</span></div>
+      <div class="card prompt"><b>Bilde das Wort</b>„${esc(p.de)}“</div>
+      <div class="field${G.ok?" ok":G.marks?" bad":""}" id="field">${G.built.length?G.built.map((id,i)=>`<button class="tile lt${G.marks?(G.marks[i]?" good":" wrong"):""}" data-sb="${id}" ${G.ok?"disabled":""}>${esc(G.letters[id].c)}</button>`).join(""):`<span class="ph">…</span>`}</div>`;
+      if(G.ok) h+=`<div class="fb good">✓ ${esc(G.t)}</div><div class="rowbtn"><button class="btn ghost" data-say="${G.k}">🔊</button><button class="btn" data-act="sNext" style="flex:2">Weiter ›</button></div>`;
+      else { if(G.tries>=2) h+=`<div class="sol"><div class="tgt">${esc(G.t)}</div></div>`;
+        h+=`<div class="pool">${G.letters.filter(x=>!used.has(x.id)).map(x=>`<button class="tile lt" data-sl="${x.id}">${esc(x.c)}</button>`).join("")}</div>
+        <div class="rowbtn" style="margin-top:0"><button class="btn ghost" data-act="sUndo">⌫</button><button class="btn ghost" data-act="sReset">↺</button><button class="btn ok" data-act="sCheck" style="flex:2;font-size:20px">✓</button></div>`; }
+    }
+  } else if(G.type==="xw"){ h+=xwHTML();
+  } else if(G.type==="hang"){
+    if(!G.ks.length){ h+=`<div class="card empty"><h3>Noch keine Wörter</h3></div>`; app.innerHTML=h; return; }
+    const kb=KB[S.lang], p=byKey(G.k);
+    h+=`<div class="qhead"><span>🌳 Baum-Raten</span><span>✓ ${G.won}</span></div>
+    <div class="card qcard"><div style="display:flex;justify-content:center">${treeSVG(G.max-G.wrong,G.max)}</div><div class="lbl" style="margin-top:4px">„${esc(p.de)}“</div>
+    <div class="hword" lang="${l.code}">${[...G.t].map(c=>{ const b=baseCh(c,S.lang); if(c===" ") return `<span class="hl sp"> </span>`; if(!kb.includes(b)) return `<span class="hl sp">${esc(c)}</span>`; return `<span class="hl">${G.over||G.guessed.includes(b)?esc(c):"&nbsp;"}</span>`; }).join("")}</div></div>`;
+    if(G.over) h+=`<div class="fb ${G.win?"good":"bad"}">${G.win?"✓ Gerettet!":"✗ Alle Blätter gefallen"}</div><div class="rowbtn"><button class="btn ghost" data-say="${G.k}">🔊</button><button class="btn" data-act="hNext" style="flex:2">Nächstes Wort ›</button></div>`;
+    else h+=`<div class="kb">`+[...kb].map(c=>{ const g=G.guessed.includes(c), hit=g&&[...G.t].some(x=>baseCh(x,S.lang)===c); return `<button data-hk="${c}" class="${g?(hit?"hit":"miss"):""}" ${g?"disabled":""}>${c}</button>`; }).join("")+`</div>`;
+  }
+  app.innerHTML=h;
+}
+function memPick(i){
+  const c=G.cards[i]; if(G.lock||c.open||c.done) return;
+  c.open=true; G.sel.push(c); if(c.side==="t") speak(byKey(c.k).t);
+  if(G.sel.length===2){ G.moves++; const [a,b]=G.sel;
+    if(a.k===b.k){ a.done=b.done=true; a.open=b.open=false; G.pairs++; G.sel=[]; }
+    else { G.lock=true; setTimeout(()=>{ a.open=b.open=false; G.sel=[]; G.lock=false; if(S.view==="game") render(); },1000); } }
+  render();
+}
+function scrCheck(){ if(!G.built.length) return; const got=G.built.map(id=>G.letters[id].c);
+  G.marks=got.map((c,i)=>(G.t[i]||"").toLowerCase()===c.toLowerCase()); G.tries++;
+  G.ok=got.join("").toLowerCase()===G.t.toLowerCase(); if(G.ok){ speak(G.t); if(G.tries===1) G.right++; grade(G.k,G.tries===1?1:0); }
+  render(); }
+function hangGuess(c){
+  if(G.over||G.guessed.includes(c)) return; G.guessed.push(c);
+  if(![...G.t].some(x=>baseCh(x,S.lang)===c)) G.wrong++;
+  if(hangDone()){ G.over=true; G.win=true; G.won++; grade(G.k,1); speak(G.t); }
+  else if(G.wrong>=G.max){ G.over=true; grade(G.k,0); speak(G.t); }
+  render();
+}
+
+/* ============ Kreuzworträtsel (Buchstaben antippen) ============ */
+const EXTRA_LETTERS={es:"áéíóúñ",it:"àèéìòù",fr:"éèêàçôû",pl:"ąćęłńóśźż",da:"æøå"};
+function buildCrossword(cands){
+  const grid=new Map(), placed=[], at=(r,c)=>grid.get(r+","+c);
+  const can=(t,r,c,dir)=>{ const dr=dir?1:0, dc=dir?0:1; let cross=0;
+    if(at(r-dr,c-dc)||at(r+dr*t.length,c+dc*t.length)) return false;
+    for(let i=0;i<t.length;i++){ const rr=r+dr*i, cc=c+dc*i, g=at(rr,cc);
+      if(g){ if(g.ch!==t[i]||g.dirs.includes(dir)) return false; cross++; }
+      else if(at(rr+dc,cc+dr)||at(rr-dc,cc-dr)) return false; }
+    return placed.length===0||cross>0; };
+  const put=(w,r,c,dir)=>{ const dr=dir?1:0, dc=dir?0:1; for(let i=0;i<w.t.length;i++){ const k=(r+dr*i)+","+(c+dc*i); const g=grid.get(k)||{ch:w.t[i],dirs:[]}; g.dirs.push(dir); grid.set(k,g); } placed.push({...w,r,c,dir}); };
+  for(const w of cands){
+    if(placed.length>=7) break;
+    if(!placed.length){ put(w,0,0,0); continue; }
+    let done=false;
+    for(const p of shuffle(placed)){ for(let i=0;i<p.t.length&&!done;i++) for(let j=0;j<w.t.length&&!done;j++){
+      if(p.t[i]!==w.t[j]) continue; const dir=p.dir?0:1;
+      const r=p.dir?p.r+i:p.r-j, c=p.dir?p.c-j:p.c+i;
+      if(can(w.t,r,c,dir)){ put(w,r,c,dir); done=true; } } if(done) break; }
+  }
+  let minR=1e9,minC=1e9,maxR=-1e9,maxC=-1e9; for(const k of grid.keys()){ const [r,c]=k.split(",").map(Number); minR=Math.min(minR,r); maxR=Math.max(maxR,r); minC=Math.min(minC,c); maxC=Math.max(maxC,c); }
+  placed.forEach(p=>{ p.r-=minR; p.c-=minC; });
+  placed.sort((a,b)=>a.r-b.r||a.c-b.c);
+  let n=0; const starts={}; placed.forEach(p=>{ const k=p.r+","+p.c; if(!starts[k]) starts[k]=++n; p.num=starts[k]; });
+  return {words:placed,h:maxR-minR+1,w:maxC-minC+1};
+}
+function startCrossword(){
+  const pool=shuffle(wKeys().filter(isLearned).filter(k=>/^[\p{L}]{3,9}$/u.test(byKey(k).t))).map(k=>({k,t:byKey(k).t.toLowerCase()}));
+  let best=null; for(let a=0;a<12;a++){ const x=buildCrossword(shuffle(pool)); if(!best||x.words.length>best.words.length) best=x; if(best.words.length>=7) break; }
+  G={type:"xw",...best,cells:{},sel:0,ent:null,marks:null,tries:{},right:0};
+  best.words.forEach(w=>w.done=false);
+  xwSelect(0);
+}
+const xwCell=(w,i)=>(w.dir?w.r+i:w.r)+","+(w.dir?w.c:w.c+i);
+function xwSelect(i){
+  G.sel=i; G.marks=null; const w=G.words[i]; if(!w) return;
+  G.ent=[...w.t].map((ch,j)=>G.cells[xwCell(w,j)]||null);
+  G.lock=G.ent.map(x=>x!==null);
+  const need=[...w.t].filter((_,j)=>!G.lock[j]);
+  const ex=(EXTRA_LETTERS[S.lang]||"")+"abcdeilmnorstu";
+  const extra=shuffle([...ex].filter(c=>!need.includes(c))).slice(0,Math.max(3,Math.min(5,8-need.length)));
+  G.pool=shuffle([...need,...extra]).map((c,id)=>({c,id,used:false}));
+}
+function xwHTML(){
+  const l=lng(), cur=G.words[G.sel];
+  if(G.words.length<3) return `<div class="card empty"><h3>Mehr Wörter lernen</h3></div>`;
+  if(G.words.every(w=>w.done)) return `<div class="card done"><div class="big">🏆</div><h3>${G.right} von ${G.words.length} beim ersten Versuch</h3><div class="rowbtn"><button class="btn" data-act="gAgain">Neues Rätsel</button></div></div>`;
+  const map={}; G.words.forEach((w,wi)=>[...w.t].forEach((ch,j)=>{ const k=xwCell(w,j); (map[k]=map[k]||{ws:[]}).ws.push(wi); if(j===0) map[k].num=w.num; }));
+  const curCells=cur?[...cur.t].map((_,j)=>xwCell(cur,j)):[];
+  let g=`<div class="xw" style="grid-template-columns:repeat(${G.w},1fr);max-width:${Math.min(G.w*40,640)}px">`;
+  for(let r=0;r<G.h;r++) for(let c=0;c<G.w;c++){ const k=r+","+c, m=map[k];
+    if(!m){ g+=`<div class="xc empty"></div>`; continue; }
+    const ci=curCells.indexOf(k); let ch=G.cells[k]||"", cls="xc";
+    if(ci>=0){ cls+=" cur"; ch=G.ent[ci]||""; if(G.marks&&G.ent[ci]) cls+=G.marks[ci]?" good":" wrong"; }
+    else if(G.cells[k]) cls+=" solved";
+    g+=`<button class="${cls}" data-xc="${m.ws.find(wi=>!G.words[wi].done)??m.ws[0]}">${m.num?`<span class="xn">${m.num}</span>`:""}<span class="xl">${esc(ch)}</span></button>`; }
+  g+=`</div>`;
+  const clue=w=>`<button class="xclue${w===cur?" on":""}${w.done?" done":""}" data-xw="${G.words.indexOf(w)}"><b>${w.num}</b> ${esc(byKey(w.k).de)}${w.done?" ✓":""}</button>`;
+  let h=`<div class="qhead"><span>✏️ Kreuzworträtsel</span><span>✓ ${G.words.filter(w=>w.done).length}/${G.words.length}</span></div>${g}`;
+  if(cur&&!cur.done){
+    h+=`<div class="card prompt"><b>${cur.num} ${cur.dir?"↓":"→"}</b>„${esc(byKey(cur.k).de)}“</div>`;
+    if(G.marks) h+=`<div class="fb bad">✗ ${G.marks.filter(Boolean).length} von ${cur.t.length} richtig</div>`;
+    h+=`<div class="pool">${G.pool.map(x=>`<button class="tile lt" data-xp="${x.id}" ${x.used?"disabled style=\"visibility:hidden\"":""}>${esc(x.c)}</button>`).join("")}</div>
+    <div class="rowbtn" style="margin-top:0"><button class="btn ghost" data-act="xUndo">⌫</button><button class="btn ghost" data-act="xReset">↺</button><button class="btn ok" data-act="xCheck" style="flex:2;font-size:20px">✓</button></div>`;
+  }
+  h+=`<div class="sec">→ Waagerecht</div><div class="xclues">${G.words.filter(w=>!w.dir).map(clue).join("")}</div><div class="sec">↓ Senkrecht</div><div class="xclues">${G.words.filter(w=>w.dir).map(clue).join("")}</div>`;
+  return h;
+}
+function xwPick(id){ const x=G.pool[id]; if(x.used) return; const j=G.ent.findIndex((e,i)=>e===null&&!G.lock[i]); if(j<0) return; G.ent[j]=x.c; x.used=id; x.slot=j; G.marks=null; render(); }
+function xwUndo(){ for(let j=G.ent.length-1;j>=0;j--){ if(!G.lock[j]&&G.ent[j]!==null){ const x=G.pool.find(p=>p.used!==false&&p.slot===j); if(x){ x.used=false; x.slot=null; } G.ent[j]=null; break; } } G.marks=null; render(); }
+function xwReset(){ G.ent=G.ent.map((e,j)=>G.lock[j]?e:null); G.pool.forEach(p=>{p.used=false;p.slot=null;}); G.marks=null; render(); }
+function xwCheck(){
+  const w=G.words[G.sel]; if(G.ent.some(e=>e===null)) return;
+  G.tries[G.sel]=(G.tries[G.sel]||0)+1; G.marks=G.ent.map((e,j)=>e===w.t[j]);
+  if(G.marks.every(Boolean)){ w.done=true; [...w.t].forEach((ch,j)=>G.cells[xwCell(w,j)]=ch); speak(byKey(w.k).t);
+    if(G.tries[G.sel]===1) G.right++; grade(w.k,G.tries[G.sel]===1?1:0);
+    const nx=G.words.findIndex(x=>!x.done); if(nx>=0) xwSelect(nx); }
+  else { G.ent=G.ent.map((e,j)=>G.lock[j]||G.marks[j]?e:e); }
+  render();
+}
+
+/* ============ Grammatik ============ */
+let GR=null;
+const fillBlank=(s,a)=>s.includes("___ ")&&a.endsWith("'")?s.replace("___ ",a):s.replace("___",a);
+function startGram(i){ const g=GRAM[S.lang][i]; GR={i,step:"table",q:0,ans:null,right:0,qs:g.ex.map(e=>({s:e[0],c:e[1][0],opts:shuffle(e[1]),de:e[2]}))}; S.view="gram"; render(); window.scrollTo(0,0); }
+function renderGram(app){
+  const g=GRAM[S.lang][GR.i], l=lng();
+  let h=`<button class="back" data-go="home">‹ Übersicht</button><div class="scnHead"><div class="ic">${g.ic}</div><h2>${esc(g.t)}</h2></div>`;
+  if(GR.step==="table"){
+    h+=`<div class="card" style="padding:6px 12px 12px"><table class="gtab">${g.h?`<tr>${g.h.map(x=>`<th>${esc(x)}</th>`).join("")}<th></th></tr>`:""}${g.rows.map(r=>`<tr>${r.map((c,ci)=>`<td class="${g.say.includes(ci)?"t":"g"}" ${g.say.includes(ci)?`lang="${l.code}"`:""}>${esc(c)}</td>`).join("")}<td style="width:36px"><button class="mini" data-sayt="${esc(g.say.map(ci=>r[ci]).join(", "))}">🔊</button></td></tr>`).join("")}</table>
+    ${g.tip?`<div class="gtip">💡 ${esc(g.tip)}</div>`:""}</div><div class="rowbtn"><button class="btn" data-act="grStart">▶ Üben</button></div>`;
+  } else if(GR.q>=GR.qs.length){
+    h+=`<div class="card done"><div class="big">${GR.right===GR.qs.length?"🏆":"💪"}</div><h3>${GR.right} von ${GR.qs.length}</h3><div class="rowbtn"><button class="btn ghost" data-act="grTable">Tabelle</button><button class="btn" data-act="grAgain">Nochmal</button></div></div>`;
+  } else {
+    const q=GR.qs[GR.q], a=GR.ans!==null;
+    const shown=a?esc(fillBlank(q.s,q.c)):esc(q.s).replace("___",`<span class="blank">&nbsp;</span>`);
+    h+=`<div class="qhead"><span>${GR.q+1}/${GR.qs.length}</span><span>✓ ${GR.right}</span></div>
+    <div class="card qcard"><div class="gsent" lang="${l.code}">${shown}</div><div class="de" style="margin-top:6px">${esc(q.de)}</div>${a?`<button class="ib" style="margin:8px auto 0" data-sayt="${esc(fillBlank(q.s,q.c))}">🔊</button>`:""}</div>
+    <div class="opts">${q.opts.map((o,i)=>{ let c=""; if(a){ if(o===q.c) c=" ok"; else if(i===GR.ans) c=" bad"; } return `<button class="opt${c}" data-gopt="${i}" ${a?"disabled":""} lang="${l.code}">${esc(o)}</button>`; }).join("")}</div>`;
+    if(a) h+=`<div class="rowbtn"><button class="btn" data-act="grNext">Weiter ›</button></div>`;
+  }
+  app.innerHTML=h;
+}
+function pickGram(i){ const q=GR.qs[GR.q]; if(GR.ans!==null) return; GR.ans=i; if(q.opts[i]===q.c) GR.right++; speak(fillBlank(q.s,q.c)); render();
+  if(GR.q===GR.qs.length-1){ const d=store.get("gramDone",{}); (d[S.lang]=d[S.lang]||[]); if(!d[S.lang].includes(GR.i)) d[S.lang].push(GR.i); store.set("gramDone",d); } }
+
+const GRAM={
+es:[
+ {ic:"👤",t:"ich, du, er … ",need:40,h:["","Deutsch"],say:[0],tip:"Oft weggelassen: hablo = ich spreche.",
+  rows:[["yo","ich"],["tú","du"],["él","er"],["ella","sie"],["usted","Sie"],["nosotros / nosotras","wir"],["vosotros / vosotras","ihr"],["ellos / ellas","sie (Mehrzahl)"],["ustedes","Sie (Mehrzahl)"]],
+  ex:[["___ soy Rumi.",["Yo","Tú","Él","Nosotros"],"Ich bin Rumi."],["¿Y ___?",["tú","yo","ella","ellos"],"Und du?"],["___ es Lucía.",["Ella","Él","Yo","Tú"],"Sie ist Lucía."],["___ somos de Alemania.",["Nosotros","Ellos","Yo","Usted"],"Wir sind aus Deutschland."],["¿Cómo está ___?",["usted","yo","nosotros","tú"],"Wie geht es Ihnen?"],["___ viven aquí.",["Ellos","Yo","Tú","Nosotros"],"Sie wohnen hier."]]},
+ {ic:"🗣️",t:"Verben auf -ar",need:60,h:["","hablar"],say:[0,1],tip:"Endungen: -o, -as, -a, -amos, -áis, -an",
+  rows:[["yo","hablo"],["tú","hablas"],["él / ella / usted","habla"],["nosotros","hablamos"],["vosotros","habláis"],["ellos / ellas / ustedes","hablan"]],
+  ex:[["Yo ___ español.",["hablo","hablas","habla","hablan"],"Ich spreche Spanisch."],["Tú ___ muy bien.",["hablas","hablo","hablamos","habla"],"Du sprichst sehr gut."],["Ella ___ en un hotel.",["trabaja","trabajo","trabajas","trabajan"],"Sie arbeitet in einem Hotel."],["Nosotros ___ mucho.",["viajamos","viajo","viajan","viajas"],"Wir reisen viel."],["Ellos ___ inglés.",["hablan","habla","hablo","hablamos"],"Sie sprechen Englisch."],["¿Tú ___ aquí?",["trabajas","trabajo","trabaja","trabajamos"],"Arbeitest du hier?"]]},
+ {ic:"🍽️",t:"Verben auf -er / -ir",need:80,h:["","comer","vivir"],say:[0,1,2],tip:"-er und -ir fast gleich, nur bei wir/ihr anders.",
+  rows:[["yo","como","vivo"],["tú","comes","vives"],["él / ella","come","vive"],["nosotros","comemos","vivimos"],["vosotros","coméis","vivís"],["ellos / ellas","comen","viven"]],
+  ex:[["Yo ___ en Alemania.",["vivo","vives","vive","viven"],"Ich wohne in Deutschland."],["¿Dónde ___ tú?",["vives","vivo","vive","vivimos"],"Wo wohnst du?"],["Ella ___ pescado.",["come","como","comes","comen"],"Sie isst Fisch."],["Nosotros ___ en casa.",["comemos","como","comen","comes"],"Wir essen zu Hause."],["Ellos ___ cerveza.",["beben","bebe","bebo","bebemos"],"Sie trinken Bier."],["Tú ___ mucho.",["lees","leo","lee","leen"],"Du liest viel."]]},
+ {ic:"⚖️",t:"ser oder estar",need:100,h:["","ser","estar"],say:[0,1,2],tip:"ser = wer/was (Herkunft, Beruf) · estar = wo/wie (Ort, Befinden)",
+  rows:[["yo","soy","estoy"],["tú","eres","estás"],["él / ella","es","está"],["nosotros","somos","estamos"],["vosotros","sois","estáis"],["ellos / ellas","son","están"]],
+  ex:[["Yo ___ de Alemania.",["soy","estoy","es","está"],"Ich komme aus Deutschland."],["Yo ___ en Madrid.",["estoy","soy","es","eres"],"Ich bin in Madrid."],["La playa ___ cerca.",["está","es","estoy","son"],"Der Strand ist in der Nähe."],["Ella ___ muy simpática.",["es","está","soy","estás"],"Sie ist sehr nett."],["¿Cómo ___ tú?",["estás","eres","es","estoy"],"Wie geht es dir?"],["Nosotros ___ alemanes.",["somos","estamos","son","sois"],"Wir sind Deutsche."]]},
+ {ic:"❓",t:"Verneinen & Fragen",need:130,h:["","Deutsch"],say:[0],tip:"no direkt vor das Verb · Fragen: ¿ … ? mit Fragewort vorne",
+  rows:[["No hablo inglés.","Ich spreche kein Englisch."],["No entiendo.","Ich verstehe nicht."],["¿Hablas español?","Sprichst du Spanisch?"],["¿Dónde está el baño?","Wo ist die Toilette?"]],
+  ex:[["___ entiendo.",["No","Sí","Nunca","Qué"],"Ich verstehe nicht."],["¿___ está la estación?",["Dónde","Cuándo","Qué","Cuánto"],"Wo ist der Bahnhof?"],["¿___ cuesta?",["Cuánto","Dónde","Quién","Cómo"],"Wie viel kostet es?"],["___ tengo dinero.",["No","Sí","Ya","Muy"],"Ich habe kein Geld."],["¿___ te llamas?",["Cómo","Dónde","Cuándo","Qué"],"Wie heißt du?"],["¿___ es eso?",["Qué","Quién","Dónde","Cuánto"],"Was ist das?"]]},
+ {ic:"🏷️",t:"der, die, ein",need:160,h:["Einzahl","Mehrzahl","Deutsch"],say:[0,1],tip:"Meist: -o männlich, -a weiblich · Mehrzahl: +s",
+  rows:[["el coche","los coches","das Auto (m)"],["la casa","las casas","das Haus (w)"],["un amigo","unos amigos","ein Freund"],["una playa","unas playas","ein Strand"]],
+  ex:[["___ playa es bonita.",["La","El","Los","Un"],"Der Strand ist schön."],["___ coche es nuevo.",["El","La","Las","Una"],"Das Auto ist neu."],["___ cerveza, por favor.",["Una","Un","La","Los"],"Ein Bier, bitte."],["___ café con leche.",["Un","Una","La","Las"],"Einen Milchkaffee."],["___ amigos viven aquí.",["Los","Las","El","Un"],"Die Freunde wohnen hier."],["___ casas son grandes.",["Las","Los","La","El"],"Die Häuser sind groß."]]}
+],
+fr:[
+ {ic:"👤",t:"ich, du, er … ",need:40,h:["","Deutsch"],say:[0],tip:"Vor Vokal wird je zu j' – j'ai, j'habite.",
+  rows:[["je (j')","ich"],["tu","du"],["il","er"],["elle","sie"],["on","man / wir (locker)"],["nous","wir"],["vous","ihr / Sie"],["ils / elles","sie (Mehrzahl)"]],
+  ex:[["___ suis Rumi.",["Je","Tu","Il","Nous"],"Ich bin Rumi."],["___ es d'où ?",["Tu","Je","Il","Vous"],"Woher kommst du?"],["___ est française.",["Elle","Il","Je","Tu"],"Sie ist Französin."],["___ habitons ici.",["Nous","Vous","Ils","Je"],"Wir wohnen hier."],["___ parlez anglais ?",["Vous","Nous","Tu","Ils"],"Sprechen Sie Englisch?"],["___ viennent demain.",["Ils","Il","Nous","Vous"],"Sie kommen morgen."]]},
+ {ic:"🗣️",t:"Verben auf -er",need:60,h:["","parler"],say:[0,1],tip:"parle, parles, parlent klingen gleich.",
+  rows:[["je","parle"],["tu","parles"],["il / elle","parle"],["nous","parlons"],["vous","parlez"],["ils / elles","parlent"]],
+  ex:[["Je ___ français.",["parle","parles","parlons","parlez"],"Ich spreche Französisch."],["Tu ___ bien.",["parles","parle","parlez","parlons"],"Du sprichst gut."],["Nous ___ en Allemagne.",["habitons","habite","habitez","habitent"],"Wir wohnen in Deutschland."],["Vous ___ ici ?",["travaillez","travaille","travaillons","travaillent"],"Arbeiten Sie hier?"],["Elle ___ le vin.",["aime","aimes","aimons","aimez"],"Sie mag Wein."],["Ils ___ beaucoup.",["voyagent","voyage","voyageons","voyagez"],"Sie reisen viel."]]},
+ {ic:"⚖️",t:"être & avoir",need:80,h:["","être","avoir"],say:[1,2],tip:"être = sein · avoir = haben",
+  rows:[["je / j'","suis","ai"],["tu","es","as"],["il / elle","est","a"],["nous","sommes","avons"],["vous","êtes","avez"],["ils / elles","sont","ont"]],
+  ex:[["Je ___ allemand.",["suis","ai","es","est"],"Ich bin Deutscher."],["Tu ___ fatigué ?",["es","as","est","suis"],"Bist du müde?"],["J'___ une voiture.",["ai","as","a","suis"],"Ich habe ein Auto."],["Nous ___ deux enfants.",["avons","sommes","avez","ont"],"Wir haben zwei Kinder."],["Ils ___ d'ici.",["sont","ont","est","sommes"],"Sie sind von hier."],["Elle ___ un chien.",["a","est","as","ai"],"Sie hat einen Hund."]]},
+ {ic:"🚶",t:"aller & faire",need:100,h:["","aller","faire"],say:[0,1,2],tip:"aller = gehen/fahren · faire = machen",
+  rows:[["je","vais","fais"],["tu","vas","fais"],["il / elle / on","va","fait"],["nous","allons","faisons"],["vous","allez","faites"],["ils / elles","vont","font"]],
+  ex:[["Je ___ à la plage.",["vais","vas","va","vont"],"Ich gehe zum Strand."],["Tu ___ où ?",["vas","vais","va","allez"],"Wohin gehst du?"],["On ___ au café ?",["va","vais","vont","allons"],"Gehen wir ins Café?"],["Qu'est-ce que tu ___ ?",["fais","fait","faites","font"],"Was machst du?"],["Nous ___ du vélo.",["faisons","faites","fais","font"],"Wir fahren Fahrrad."],["Ils ___ au marché.",["vont","va","allons","vas"],"Sie gehen zum Markt."]]},
+ {ic:"❓",t:"Verneinen & Fragen",need:130,h:["","Deutsch"],say:[0],tip:"ne … pas um das Verb · Frage: Est-ce que … ?",
+  rows:[["Je ne comprends pas.","Ich verstehe nicht."],["Je n'ai pas de voiture.","Ich habe kein Auto."],["Est-ce que tu parles anglais ?","Sprichst du Englisch?"],["Où est la gare ?","Wo ist der Bahnhof?"]],
+  ex:[["Je ___ comprends pas.",["ne","pas","non","oui"],"Ich verstehe nicht."],["Je ne parle ___ espagnol.",["pas","ne","non","plus"],"Ich spreche kein Spanisch."],["___ est la gare ?",["Où","Quand","Qui","Combien"],"Wo ist der Bahnhof?"],["___ ça coûte ?",["Combien","Où","Comment","Qui"],"Wie viel kostet das?"],["___-ce que tu viens ?",["Est","Es","Et","Ai"],"Kommst du?"],["Tu t'appelles ___ ?",["comment","où","quand","combien"],"Wie heißt du?"]]},
+ {ic:"🏷️",t:"der, die, ein",need:160,h:["Einzahl","Mehrzahl","Deutsch"],say:[0,1],tip:"le = männlich · la = weiblich · l' vor Vokal · les = Mehrzahl",
+  rows:[["le train","les trains","der Zug (m)"],["la plage","les plages","der Strand (w)"],["l'ami","les amis","der Freund"],["un café / une bière","des cafés","ein / einige"]],
+  ex:[["___ plage est belle.",["La","Le","Les","Un"],"Der Strand ist schön."],["___ train arrive.",["Le","La","Les","Une"],"Der Zug kommt an."],["___ eau, s'il vous plaît.",["L'","Le","La","Les"],"Das Wasser, bitte."],["___ amis habitent ici.",["Les","Le","La","Un"],"Die Freunde wohnen hier."],["___ café, s'il vous plaît.",["Un","Une","La","Des"],"Einen Kaffee, bitte."],["___ bière, s'il vous plaît.",["Une","Un","Le","Des"],"Ein Bier, bitte."]]}
+]};
+GRAM.it=[
+ {ic:"👤",t:"ich, du, er … ",need:40,h:["","Deutsch"],say:[0],tip:"Oft weggelassen: parlo = ich spreche.",
+  rows:[["io","ich"],["tu","du"],["lui","er"],["lei","sie / Sie (höflich)"],["noi","wir"],["voi","ihr"],["loro","sie (Mehrzahl)"]],
+  ex:[["___ sono Rumi.",["Io","Tu","Lui","Noi"],"Ich bin Rumi."],["E ___?",["tu","io","lui","loro"],"Und du?"],["___ è Giulia.",["Lei","Lui","Io","Tu"],"Sie ist Giulia."],["___ siamo tedeschi.",["Noi","Loro","Io","Voi"],"Wir sind Deutsche."],["___ siete di qui?",["Voi","Noi","Tu","Loro"],"Seid ihr von hier?"],["___ abitano a Roma.",["Loro","Io","Tu","Noi"],"Sie wohnen in Rom."]]},
+ {ic:"🗣️",t:"Verben auf -are",need:60,h:["","parlare"],say:[0,1],tip:"Endungen: -o, -i, -a, -iamo, -ate, -ano",
+  rows:[["io","parlo"],["tu","parli"],["lui / lei","parla"],["noi","parliamo"],["voi","parlate"],["loro","parlano"]],
+  ex:[["Io ___ italiano.",["parlo","parli","parla","parlano"],"Ich spreche Italienisch."],["Tu ___ molto bene.",["parli","parlo","parliamo","parla"],"Du sprichst sehr gut."],["Lei ___ in un albergo.",["lavora","lavoro","lavori","lavorano"],"Sie arbeitet in einem Hotel."],["Noi ___ molto.",["viaggiamo","viaggio","viaggiano","viaggi"],"Wir reisen viel."],["Loro ___ inglese.",["parlano","parla","parlo","parliamo"],"Sie sprechen Englisch."],["Tu ___ qui?",["lavori","lavoro","lavora","lavoriamo"],"Arbeitest du hier?"]]},
+ {ic:"🍝",t:"Verben auf -ere / -ire",need:80,h:["","prendere","dormire"],say:[0,1,2],tip:"-ere und -ire fast gleich, nur bei voi anders.",
+  rows:[["io","prendo","dormo"],["tu","prendi","dormi"],["lui / lei","prende","dorme"],["noi","prendiamo","dormiamo"],["voi","prendete","dormite"],["loro","prendono","dormono"]],
+  ex:[["Io ___ un caffè.",["prendo","prendi","prende","prendono"],"Ich nehme einen Kaffee."],["Tu ___ molto.",["dormi","dormo","dorme","dormiamo"],"Du schläfst viel."],["Lui ___ il giornale.",["legge","leggo","leggi","leggono"],"Er liest die Zeitung."],["Noi ___ vino.",["beviamo","bevo","bevono","bevi"],"Wir trinken Wein."],["Loro ___ in camper.",["dormono","dorme","dormo","dormiamo"],"Sie schlafen im Wohnmobil."],["Voi ___ il treno?",["prendete","prendiamo","prendono","prendi"],"Nehmt ihr den Zug?"]]},
+ {ic:"⚖️",t:"essere & avere",need:100,h:["","essere","avere"],say:[0,1,2],tip:"essere = sein · avere = haben · h wird nicht gesprochen",
+  rows:[["io","sono","ho"],["tu","sei","hai"],["lui / lei","è","ha"],["noi","siamo","abbiamo"],["voi","siete","avete"],["loro","sono","hanno"]],
+  ex:[["Io ___ tedesco.",["sono","ho","è","sei"],"Ich bin Deutscher."],["Tu ___ stanco?",["sei","hai","è","sono"],"Bist du müde?"],["Io ___ una macchina.",["ho","hai","ha","sono"],"Ich habe ein Auto."],["Noi ___ due figli.",["abbiamo","siamo","avete","hanno"],"Wir haben zwei Kinder."],["Loro ___ di qui.",["sono","hanno","è","siamo"],"Sie sind von hier."],["Lei ___ un cane.",["ha","è","hai","ho"],"Sie hat einen Hund."]]},
+ {ic:"❓",t:"Verneinen & Fragen",need:130,h:["","Deutsch"],say:[0],tip:"non vor das Verb · Frage: Stimme am Ende heben",
+  rows:[["Non parlo inglese.","Ich spreche kein Englisch."],["Non capisco.","Ich verstehe nicht."],["Parli italiano?","Sprichst du Italienisch?"],["Dov'è il bagno?","Wo ist die Toilette?"]],
+  ex:[["___ capisco.",["Non","Sì","Mai","Che"],"Ich verstehe nicht."],["___ è la stazione?",["Dov'","Quando","Chi","Quanto"],"Wo ist der Bahnhof?"],["___ costa?",["Quanto","Dove","Chi","Come"],"Wie viel kostet es?"],["___ ho soldi.",["Non","Sì","Già","Molto"],"Ich habe kein Geld."],["___ ti chiami?",["Come","Dove","Quando","Chi"],"Wie heißt du?"],["___ cos'è?",["Che","Chi","Dove","Quanto"],"Was ist das?"]]},
+ {ic:"🏷️",t:"der, die, ein",need:160,h:["Einzahl","Mehrzahl","Deutsch"],say:[0,1],tip:"il = männlich · la = weiblich · l' vor Vokal · Mehrzahl: -i / -e",
+  rows:[["il treno","i treni","der Zug (m)"],["la casa","le case","das Haus (w)"],["l'amico","gli amici","der Freund"],["un caffè / una birra","dei caffè","ein / einige"]],
+  ex:[["___ spiaggia è bella.",["La","Il","Le","Un"],"Der Strand ist schön."],["___ treno arriva.",["Il","La","Le","Una"],"Der Zug kommt an."],["___ acqua, per favore.",["L'","Il","La","Le"],"Das Wasser, bitte."],["___ amici abitano qui.",["Gli","Le","Il","I"],"Die Freunde wohnen hier."],["___ caffè, per favore.",["Un","Una","La","Le"],"Einen Kaffee, bitte."],["___ birra, per favore.",["Una","Un","Il","Le"],"Ein Bier, bitte."]]}
+];
+
+/* --- Szene --- */
+let D=null, Q=null, C=null;
+function renderScn(app){
+  const id=S.scn, l=lng(), sc=l.s[id];
+  const tabs=[["ub","🧩 Üben"]];
+  if(sc.dlg) tabs.push(["dlg","💬 Chat"]);
+  tabs.push(["quiz","Quiz"],["ai",sceneState(id).stars>=2?"✨ KI-Chat":"✨ KI-Chat 🔒"]);
+  if(!tabs.find(t=>t[0]===S.tab)) S.tab="ub";
+  let h=`<button class="back" data-go="home">‹ Übersicht</button>
+  <div class="scnHead"><div class="ic">${SCN[id].ic}</div><h2>${esc(scnTitle(id))}</h2></div>
+  ${lockBanner(id)}
+  <div class="tabs">${tabs.map(t=>`<button class="tab${S.tab===t[0]?" on":""}" data-tab="${t[0]}">${t[1]}</button>`).join("")}</div>
+  <div id="pane"></div>`;
+  app.innerHTML=h;
+  if(S.tab==="ub"){ if(!P||P.id!==S.lang+id) startPractice(); else drawPractice(); }
+  else if(S.tab==="dlg"){ if(!D||D.id!==S.lang+id) startDialog(); else drawDialog(); }
+  else if(S.tab==="quiz"){ if(!Q||Q.id!==S.lang+id) startQuiz(); else drawQuiz(); }
+  else if(S.tab==="ai"){ if(!C||C.id!==S.lang+id) C={id:S.lang+id,msgs:[],busy:false,sugs:[],err:""}; drawAI(); }
+}
+
+/* --- Satzbau-Baustein (für Üben und Chat) --- */
+let B=null;
+function newBuilder(t,r,de,onOk){ return {t,r,de,tiles:makeTiles(t,r),built:[],marks:null,ok:false,tries:0,onOk,redraw:null}; }
+function bTarget(){ return toks(B.t,B.r).map(norm); }
+function builderHTML(extraHead=""){
+  const l=lng(), used=new Set(B.built), dir=l.rtl&&!noSpace(S.lang)?'dir="rtl"':"";
+  let h=`<div class="card prompt"><b>Sag auf ${esc(l.name)}</b>„${esc(B.de)}“${extraHead}</div>
+  <div class="field${B.ok?" ok":B.marks?" bad":""}" id="field" ${dir}>${B.built.length?B.built.map((id,i)=>`<button class="tile${B.marks?(B.marks[i]?" good":" wrong"):""}" data-bb="${id}" lang="${l.code}" ${B.ok?"disabled":""}>${esc(B.tiles[id].w)}</button>`).join(""):`<span class="ph">…</span>`}</div>`;
+  if(B.ok){
+    h+=`<div class="fb good">✓ Richtig!<div style="margin-top:4px">${tgtHTML(B.t,B.r)}</div></div>
+    <div class="rowbtn"><button class="btn ghost" data-act="bSay">🔊 Anhören</button><button class="btn" data-act="bNext" style="flex:2">Weiter ›</button></div>`;
+    return h;
+  }
+  if(B.marks){ const n=B.marks.filter(Boolean).length, len=bTarget().length;
+    h+=`<div class="fb bad">✗ ${n} von ${len} Wörtern an der richtigen Stelle</div>`;
+    if(B.tries>=2) h+=`<div class="sol">${tgtHTML(B.t,B.r)}</div>`; }
+  h+=`<div class="pool" ${l.rtl?'dir="rtl"':""}>${B.tiles.filter(x=>!used.has(x.id)).map(x=>`<button class="tile" data-bt="${x.id}" lang="${l.code}">${esc(x.w)}</button>`).join("")}</div>
+  <div class="rowbtn" style="margin-top:0"><button class="btn ghost" data-act="bUndo">⌫</button><button class="btn ghost" data-act="bReset">↺</button><button class="btn ghost" data-act="bHint">💡</button><button class="btn ok" data-act="bCheck" style="flex:2;font-size:20px">✓</button></div>`;
+  return h;
+}
+function bCheck(){
+  if(!B.built.length) return;
+  const target=bTarget(), got=B.built.map(id=>norm(B.tiles[id].w));
+  B.marks=got.map((w,i)=>w===target[i]); B.tries++;
+  B.ok=got.length===target.length&&B.marks.every(Boolean);
+  if(B.ok&&settings.auto) speak(B.t);
+  B.redraw();
+  if(!B.ok){ const f=$("#field"); if(f){ f.classList.add("shake"); setTimeout(()=>f.classList.remove("shake"),400); } }
+}
+function bHint(){
+  const target=bTarget(); let k=0; while(k<B.built.length&&k<target.length&&norm(B.tiles[B.built[k]].w)===target[k]) k++;
+  B.built=B.built.slice(0,k); B.marks=null; B.tries++;
+  if(k<target.length){ const used=new Set(B.built); const t=B.tiles.find(x=>!used.has(x.id)&&norm(x.w)===target[k]); if(t) B.built.push(t.id); }
+  B.redraw();
+}
+
+/* --- Üben: Sätze der Szene, sortiert nach schon gelernten Wörtern --- */
+let P=null;
+function learnedSet(lc=S.lang){ const s=new Set(); (WORDS[lc]||[]).forEach((w,i)=>{ if(srs[lc+"|w|"+i]) w[0].split(/\s*\/\s*|\s+/).forEach(x=>{ x=norm(x.replace(/^[¡¿]+|[.,!?]+$/g,"")); if(x) s.add(x); }); }); return s; }
+function startPractice(){
+  const ls=learnedSet();
+  const list=phrases(S.scn).map((p,idx)=>{ const tk=toks(p.t,p.r), kn=tk.filter(w=>ls.has(norm(w))).length; return {p,kn,tot:tk.length,idx}; });
+  list.sort((a,b)=>(b.kn/b.tot)-(a.kn/a.tot)||(fachOf(a.p.key)-fachOf(b.p.key))||a.idx-b.idx);
+  P={id:S.lang+S.scn,list,i:0,right:0,hasWords:!!WORDS[S.lang]};
+  nextPractice();
+}
+function nextPractice(){
+  const it=P.list[P.i]; B=null;
+  if(it){ const p=it.p; B=newBuilder(p.t,p.r,p.de); B.redraw=drawPractice;
+    B.onOk=()=>{ addDeck(p.key); grade(p.key,B.tries===1?1:0); if(B.tries===1) P.right++; P.i++; nextPractice(); }; }
+  drawPractice();
+}
+function drawPractice(){
+  const pane=$("#pane"); if(!pane) return;
+  const n=P.list.length;
+  if(P.i>=n){ pane.innerHTML=`<div class="card done"><div class="big">${P.right===n?"🏆":"💪"}</div><h3>${P.right} von ${n} beim ersten Versuch</h3><div class="rowbtn"><button class="btn ghost" data-act="pRestart">Nochmal</button>${lng().s[S.scn].dlg?`<button class="btn" data-tab="dlg">💬 Chat</button>`:""}</div></div>`; return; }
+  const it=P.list[P.i];
+  const chip=P.hasWords?`<span class="kchip">📚 ${it.kn}/${it.tot} Wörter bekannt</span>`:"";
+  pane.innerHTML=`<div class="qhead"><span>Satz ${P.i+1}/${n}</span><span>✓ ${P.right}</span></div>`+builderHTML(chip);
+}
+
+/* --- Dialog / Chat --- */
+function startDialog(){ D={id:S.lang+S.scn,lines:lng().s[S.scn].dlg,i:0,shown:[],wrong:0,opts:null,showDe:false}; advance(); }
+function distractors(correct,n){
+  const l=lng(); const pool=new Set();
+  for(const id of l.order){ (l.s[id].dlg||[]).forEach(x=>{ if(x[0]==="u") pool.add(JSON.stringify([x[1],x[3]||""])); }); (l.s[id].ph||[]).forEach(x=>pool.add(JSON.stringify([x[0],x[2]||""]))); }
+  return shuffle([...pool].map(s=>JSON.parse(s)).filter(x=>x[0]!==correct)).slice(0,n);
+}
+function advance(){
+  let first=true;
+  while(D.i<D.lines.length&&D.lines[D.i][0]==="p"){ const ln=D.lines[D.i]; D.shown.push({ln,rev:!settings.listen}); if(settings.auto) speak(ln[1],{queue:!first}); first=false; D.i++; }
+  if(D.i<D.lines.length){ const ln=D.lines[D.i]; D.opts=shuffle([[ln[1],ln[3]||""],...distractors(ln[1],2)]);
+    B=newBuilder(ln[1],ln[3],ln[2]); B.redraw=drawDialog;
+    B.onOk=()=>{ if(B.tries>1) D.wrong+=B.tries-1; D.shown.push({ln,rev:true}); D.i++; B=null; advance(); };
+  } else { D.opts=null; B=null; }
+  drawDialog();
+}
+function drawDialog(){
+  const pane=$("#pane"); if(!pane) return;
+  let h=`<div class="tools"><button class="toggle${D.showDe?" on":""}" data-act="dlgDe">${D.showDe?"☑":"☐"} Übersetzung</button>
+  <button class="toggle${settings.listen?" on":""}" data-act="listen">${settings.listen?"☑":"☐"} 👂 Hörtraining</button>
+  <button class="toggle${settings.build?" on":""}" data-act="build">${settings.build?"☑":"☐"} 🧩 Bausteine</button>
+  <button class="btn ghost small" data-act="dlgRestart">↺</button></div><div class="chat">`;
+  D.shown.forEach((s,idx)=>{
+    const [who,t,de,r]=s.ln;
+    h+=`<div class="bub ${who}"><div class="row"><div style="flex:1;min-width:0">${(who==="u"||s.rev)?tgtHTML(t,r):`<button class="reveal" data-rev="${idx}">👂 Text zeigen</button>`}${D.showDe?`<div class="de">${esc(de)}</div>`:""}</div>
+    <button class="mini" data-sayt="${esc(t)}">🔊</button></div></div>`;
+  });
+  h+=`</div>`;
+  if(D.opts){
+    if(settings.build&&B) h+=builderHTML();
+    else { const ln=D.lines[D.i]; h+=`<div class="card prompt"><b>Sag auf ${esc(lng().name)}</b>„${esc(ln[2])}“</div><div class="opts">`; D.opts.forEach((o,i)=>h+=`<button class="opt" data-dopt="${i}">${tgtHTML(o[0],o[1])}</button>`); h+=`</div>`; }
+  } else {
+    { const a=chatDone[S.lang]||(chatDone[S.lang]=[]); if(!a.includes(S.scn)){ a.push(S.scn); store.set("chatDone",chatDone); } }
+    h+=`<div class="card done"><div class="big">${D.wrong===0?"🎉":"👏"}</div><h3>Chat geschafft!</h3><p class="muted">${D.wrong===0?"Ohne Fehler.":D.wrong+" Fehlversuch"+(D.wrong>1?"e":"")}</p>
+    <div class="rowbtn"><button class="btn ghost" data-act="dlgRestart">Nochmal</button><button class="btn" data-tab="quiz">Quiz</button></div></div>`;
+  }
+  pane.innerHTML=h;
+  const last=pane.querySelector(".prompt")||pane.querySelector(".opts")||pane.querySelector(".done"); if(last&&D.shown.length>1) last.scrollIntoView({behavior:"smooth",block:"start"});
+}
+function pickDialog(i,el){
+  const ln=D.lines[D.i], o=D.opts[i];
+  if(o[0]===ln[1]){ el.classList.add("ok"); speak(ln[1]); setTimeout(()=>{ D.shown.push({ln,rev:true}); D.i++; advanceAfterUser(); },550); }
+  else { D.wrong++; el.classList.add("bad","shake"); setTimeout(()=>el.classList.remove("shake"),400); }
+}
+function advanceAfterUser(){
+  const wait=()=>{ try{ if(speechSynthesis.speaking){ setTimeout(wait,200); return; } }catch(e){} advance(); };
+  setTimeout(wait,250);
+}
+
+/* --- Quiz --- */
+function startQuiz(){
+  const ps=phrases(S.scn), all=allPhrases();
+  const qs=shuffle(ps).slice(0,Math.min(8,ps.length)).map(p=>{
+    const dir=Math.random()<.5?"de2t":"t2de";
+    let pool=shuffle(ps.filter(x=>x.key!==p.key)); if(pool.length<3) pool=pool.concat(shuffle(all.filter(x=>x.key!==p.key&&!pool.includes(x))));
+    return {p,dir,opts:shuffle([p,...pool.slice(0,3)]),ans:null};
+  });
+  Q={id:S.lang+S.scn,qs,i:0,score:0};
+  drawQuiz(); maybeSpeakQ();
+}
+function maybeSpeakQ(){ const q=Q.qs[Q.i]; if(q&&q.dir==="t2de"&&settings.auto) speak(q.p.t); }
+function drawQuiz(){
+  const pane=$("#pane"); if(!pane) return;
+  if(Q.i>=Q.qs.length){
+    const n=Q.qs.length, s=Q.score;
+    pane.innerHTML=`<div class="card done"><div class="big">${s===n?"🏆":s>=n*.6?"💪":"🌱"}</div><h3>${s} von ${n} richtig</h3>
+    <div class="rowbtn"><button class="btn ghost" data-act="quizRestart">Nochmal</button><button class="btn" data-go="review">Wiederholen</button></div></div>`;
+    return;
+  }
+  const q=Q.qs[Q.i];
+  let h=`<div class="qhead"><span>Frage ${Q.i+1}/${Q.qs.length}</span><span>✓ ${Q.score}</span></div><div class="card qcard">`;
+  if(q.dir==="de2t") h+=`<div class="lbl">Wie sagt man das?</div><div class="tgt" style="color:var(--ink)">${esc(q.p.de)}</div>`;
+  else h+=`<div class="lbl">Was bedeutet das?</div>${tgtHTML(q.p.t,q.p.r)}<div style="margin-top:10px"><button class="ib" style="margin:0 auto" data-say="${esc(q.p.key)}">🔊</button></div>`;
+  h+=`</div><div class="opts">`;
+  q.opts.forEach((o,i)=>{
+    let cls=""; if(q.ans!==null){ if(o.key===q.p.key) cls=" ok"; else if(i===q.ans) cls=" bad"; }
+    h+=`<button class="opt${cls}" data-qopt="${i}" ${q.ans!==null?"disabled":""}>${q.dir==="de2t"?tgtHTML(o.t,o.r,S.lang,o.inf):esc(o.de)}</button>`;
+  });
+  h+=`</div>`;
+  if(q.ans!==null) h+=`<div class="rowbtn"><button class="btn" data-act="quizNext">Weiter ›</button></div>`;
+  pane.innerHTML=h;
+}
+function pickQuiz(i){
+  const q=Q.qs[Q.i]; if(q.ans!==null) return;
+  q.ans=i; const ok=q.opts[i].key===q.p.key; if(ok) Q.score++;
+  addDeck(q.p.key); grade(q.p.key,ok);
+  if(q.dir==="de2t"||!ok) speak(q.p.t);
+  drawQuiz();
+}
+
+/* --- Freies Gespräch (KI) --- */
+function drawAI(){
+  const pane=$("#pane"); if(!pane) return; const l=lng();
+  if(sceneState(S.scn).stars<2){ pane.innerHTML=`<div class="card empty"><div style="font-size:42px">🔒</div><h3 style="margin:8px 0">Ab ⭐⭐</h3><button class="btn" data-tab="ub">🧩 Üben</button></div>`; return; }
+  if(!sampleFn){ pane.innerHTML=`<div class="card empty"><div style="font-size:42px">✨</div><h3 style="margin:8px 0">KI-Chat hier nicht verfügbar</h3><p class="muted">Öffne die App im Browser auf claude.ai.</p></div>`; return; }
+  let h="";
+  if(!C.msgs.length&&!C.busy){
+    h+=`<div class="card done"><div class="big">${SCN[S.scn].ic}</div><h3>${esc(scnTitle(S.scn))}</h3><button class="btn" data-act="aiStart">Gespräch starten</button>${C.err?`<p style="color:var(--bad);font-size:14px">${esc(C.err)}</p>`:""}</div>`;
+    pane.innerHTML=h; return;
+  }
+  h+=`<div class="chat">`;
+  C.msgs.forEach((m,idx)=>{
+    if(m.who==="ai") h+=`<div class="bub p"><div class="row"><div style="flex:1;min-width:0">${tgtHTML(m.t,m.r)}${m.showDe?`<div class="de">${esc(m.de)}</div>`:`<button class="reveal" data-aide="${idx}">Übersetzung</button>`}</div><button class="mini" data-sayt="${esc(m.t)}">🔊</button></div></div>`;
+    else { h+=`<div class="bub u"><div class="tgt">${esc(m.t)}</div></div>`; if(m.corr) h+=`<div class="corr"><b>✏️ Tipp:</b> ${esc(m.corr)}</div>`; }
+  });
+  if(C.busy) h+=`<div class="typing">… schreibt</div>`;
+  h+=`</div>`;
+  if(C.err) h+=`<p style="color:var(--bad);font-size:14px">${esc(C.err)}</p>`;
+  if(C.sugs.length&&!C.busy){
+    h+=`<div class="tools" style="margin:6px 0"><button class="toggle${settings.aiTiles!==false?" on":""}" data-act="aiTiles">🧩 Wort-Bausteine</button><button class="toggle${settings.aiTiles===false?" on":""}" data-act="aiSugs">💬 Ganze Sätze</button></div>`;
+    if(settings.aiTiles!==false){
+      const l=lng();
+      h+=`<div class="muted" style="font-size:12px;font-weight:800">Tippe Wörter an – sie landen im Textfeld</div><div class="pool" style="margin-top:6px">${(C.tw||[]).map((w,i)=>`<button class="tile" data-aw="${i}" lang="${l.code}">${esc(w)}</button>`).join("")}</div>`;
+    } else h+=`<div class="sugs">${C.sugs.map((s,i)=>`<button class="sug" data-sug="${i}">${esc(s.t)}${s.r?` · ${esc(s.r)}`:""}<small>${esc(s.de||"")}</small></button>`).join("")}</div>`;
+  }
+  { const sp={es:"á é í ó ú ñ ü ¿ ¡",it:"à è é ì ò ù",fr:"é è ê à â ç ô û ù ë ï î œ",pl:"ą ć ę ł ń ó ś ź ż",da:"æ ø å"}[S.lang]; if(sp&&!C.busy) h+=`<div class="chars">${sp.split(" ").map(c=>`<button class="tile lt" data-ch="${c}">${c}</button>`).join("")}</div>`; }
+  h+=`<form class="composer" id="aiForm"><textarea id="aiIn" rows="1" placeholder="Deine Antwort…" ${C.busy?"disabled":""}></textarea><button class="btn" ${C.busy?"disabled":""}>Senden</button></form>
+  <div style="text-align:center;margin-top:4px"><button class="btn ghost small" data-act="aiReset">↺ Neues Gespräch</button></div>`;
+  pane.innerHTML=h;
+  const ta=$("#aiIn"); if(ta){ ta.addEventListener("keydown",e=>{ if(e.key==="Enter"&&!e.shiftKey){ e.preventDefault(); $("#aiForm").requestSubmit(); } }); }
+  const chat=pane.querySelector(".chat"); if(chat&&C.msgs.length>1) (pane.querySelector(".composer")||chat).scrollIntoView({behavior:"smooth",block:"end"});
+}
+function buildPrompt(){
+  const l=lng(), sc=SCN[S.scn];
+  const romRule=l.rom?`- "reply_roman": lateinische Umschrift von "reply" (bei Japanisch Hepburn, bei Russisch einfache Transliteration, bei Arabisch vereinfachte wissenschaftliche Umschrift). Auch jeder Vorschlag bekommt "r" mit Umschrift.`:`- "reply_roman" und "r" bleiben leer ("").`;
+  const extra=S.lang==="ar"?"- Verwende einfaches Hocharabisch (Fusha) mit Vokalisierung nur wo nötig, keine Dialektformen.\n":"";
+  const transcript=C.msgs.map(m=>(m.who==="ai"?"Partner: ":"Lernender: ")+m.t).join("\n");
+  return `Du bist Gesprächspartner in einer Sprachlern-App. Der Lernende heißt Rumi, spricht Deutsch und lernt ${l.name} auf Anfängerniveau (A1). Ziel: einfacher Smalltalk im Alltag.
+Szene: ${scnTitle(S.scn)}. Du spielst: ${sc.role}.
+Regeln:
+- Antworte auf ${l.name}, sehr einfach, höchstens 1–2 kurze Sätze, freundlich und natürlich. Stelle meistens eine einfache Rückfrage, damit das Gespräch weiterläuft.
+- Bleib in deiner Rolle und in der Szene. Nutze vor allem Grundwortschatz.
+${extra}- "reply_de": deutsche Übersetzung deiner Antwort.
+- "correction": Hat die LETZTE Nachricht des Lernenden echte Fehler, erkläre sie auf Deutsch in einem kurzen Satz und nenne die korrigierte Version. Akzente, Satzzeichen und Groß-/Kleinschreibung ignorieren. Schreibt der Lernende (teilweise) auf Deutsch, gib hier an, wie man das auf ${l.name} sagt, und antworte, als hätte er es so gesagt. Sonst "".
+- "suggestions": genau 3 kurze, einfache Antworten, die der Lernende auf deine Nachricht geben könnte – Objekte mit "t" (auf ${l.name}), "r" und "de" (Deutsch).
+${romRule}
+Antworte ausschließlich mit JSON in genau dieser Form:
+{"reply":"","reply_roman":"","reply_de":"","correction":"","suggestions":[{"t":"","r":"","de":""}]}
+
+Bisheriges Gespräch:
+${transcript||"(noch leer)"}
+
+${C.msgs.length?"Antworte jetzt auf die letzte Nachricht des Lernenden.":"Eröffne das Gespräch mit einer passenden ersten Aussage oder Frage."}`;
+}
+async function aiTurn(){
+  if(!sampleFn||C.busy) return;
+  const cid=C.id; C.busy=true; C.err=""; C.sugs=[]; drawAI();
+  try{
+    let res;
+    try{ res=await sampleFn.json(buildPrompt(),{modelTier:"quick",cache:false}); }
+    catch(e){ if(e&&(e.code==="not_granted"||e.code==="rate_limited")) throw e;
+      const r=await sampleFn(buildPrompt(),{modelTier:"quick",cache:false}); const m=(r.text||"").match(/\{[\s\S]*\}/); res=JSON.parse(m?m[0]:r.text); }
+    if(!C||C.id!==cid) return;
+    const lastMe=[...C.msgs].reverse().find(m=>m.who==="me"); if(lastMe&&res.correction) lastMe.corr=res.correction;
+    C.msgs.push({who:"ai",t:res.reply||"…",r:res.reply_roman||"",de:res.reply_de||"",showDe:false});
+    C.sugs=Array.isArray(res.suggestions)?res.suggestions.slice(0,3):[];
+    { const seen=new Set(), tw=[]; C.sugs.forEach(s=>toks(s.t||"",s.r||"").forEach(w=>{ const n=norm(w); if(!seen.has(n)){ seen.add(n); tw.push(w); } })); C.tw=shuffle(tw); }
+    if(settings.auto&&res.reply) speak(res.reply);
+  }catch(e){
+    if(e&&e.code==="not_granted"){ sampleFn=null; C.busy=false; render(); return; }
+    C.err=e&&e.code==="rate_limited"?"Gerade zu viele Anfragen – bitte kurz warten und nochmal senden.":"Das hat nicht geklappt. Bitte nochmal versuchen.";
+  }
+  C.busy=false; drawAI();
+}
+
+/* --- Wiederholen (Übersicht) --- */
+function renderReview(app){
+  const due=dueKeys(), dw=due.filter(k=>k.includes("|w|")).length, dp=due.length-dw;
+  const phr=Object.keys(srs).filter(k=>k.startsWith(S.lang+"|")&&!k.includes("|w|")&&byKey(k));
+  let h=`<div class="sec">Wiederholen · ${esc(lng().name)}</div>`;
+  h+=due.length?`<div class="card set"><label>${due.length} Karten fällig</label><div class="rowbtn"><button class="btn alt" data-act="revStart">🔁 Jetzt wiederholen</button></div></div>`
+    :`<div class="card empty"><div style="font-size:42px">✅</div><h3 style="margin:8px 0">Nichts fällig</h3><button class="btn" data-go="words">Zu den Wörtern</button></div>`;
+  { const dk=deckKeys(); if(dk.length) h+=`<div class="card set"><label>Karteikasten <span class="muted" style="font-size:13px">${dk.filter(k=>k.includes("|w|")).length} Wörter · ${dk.filter(k=>!k.includes("|w|")).length} Sätze</span></label><div id="kastenWrap">${kastenHTML(dk)}</div></div>`; }
+  app.innerHTML=h;
+}
+
+/* --- Einstellungen --- */
+function settingsHTML(){
+  const l=lng(), hasTTS="speechSynthesis" in window, v=hasTTS&&voiceFor(l.code);
+  return `<div class="sec">Aussprache</div>
+  <div class="card set"><label>Sprechtempo <span class="muted">${Math.round(settings.rate*100)} %</span></label><input type="range" min="0.5" max="1.1" step="0.05" value="${settings.rate}" data-set="rate"></div>
+  <div class="card set"><label>Automatisch vorlesen <input type="checkbox" data-set="auto" ${settings.auto?"checked":""}></label></div>
+  <div class="card set"><label>Hörtraining im Dialog <input type="checkbox" data-set="listen" ${settings.listen?"checked":""}></label></div>
+  <div class="card set"><label>Stimme für ${esc(l.name)} <span style="color:${v?"var(--ok)":"var(--acc2)"}">${!hasTTS?"nicht unterstützt":v?"vorhanden ✓":"nicht gefunden"}</span></label>
+  <p>${v?esc(v.name):"Sprachpaket in den Handy-Einstellungen installieren."}</p>
+  <div style="margin-top:10px"><button class="btn ghost small" data-act="testVoice">🔊 Testen</button></div></div>
+  <div class="sec">Fortschritt</div>
+  <div class="card set"><div><button class="btn ghost small" data-act="resetLang">Fortschritt für ${esc(l.name)} zurücksetzen</button></div></div>`;
+}
+function confirmBox(text,onYes){
+  $("#modal").innerHTML=`<div class="modal"><div class="card"><p style="margin-top:0;font-weight:700">${esc(text)}</p><div class="rowbtn"><button class="btn ghost" data-m="0">Abbrechen</button><button class="btn bad" data-m="1">Ja</button></div></div></div>`;
+  $("#modal").onclick=e=>{ const b=e.target.closest("[data-m]"); if(!b&&!e.target.classList.contains("modal")) return; $("#modal").innerHTML=""; if(b&&b.dataset.m==="1") onYes(); };
+}
+
+/* ============ Events ============ */
+document.addEventListener("click",e=>{
+  const t=e.target.closest("button,[data-reveal]"); if(!t) return;
+  const d=t.dataset;
+  if(d.lang){ S.lang=d.lang; store.set("lang",S.lang); if(S.view==="scn"&&!lng().s[S.scn]) S.view="home"; if(["game","gram"].includes(S.view)) S.view=S.view==="game"?"games":"home"; if(["wlearn","fach","cards"].includes(S.view)) S.view=(S.view==="cards"&&RV&&RV.back==="review")?"review":"words"; render(); window.scrollTo(0,0); return; }
+  if(d.v){ S.view=d.v; render(); window.scrollTo(0,0); return; }
+  if(d.go){ S.view=d.go; render(); window.scrollTo(0,0); return; }
+  if(d.scn){ S.scn=d.scn; S.view="scn"; S.tab="ub"; D=Q=P=null; B=null; render(); window.scrollTo(0,0); return; }
+  if(d.tab){ S.tab=d.tab; if(d.tab==="quiz"&&Q&&Q.i>=Q.qs.length) Q=null; render(); return; }
+  if(d.say){ const p=byKey(d.say); if(p) speak(p.t); return; }
+  if(d.slow){ const p=byKey(d.slow); if(p) speak(p.t,{slow:true}); return; }
+  if(d.sayt){ speak(d.sayt); return; }
+  if(d.star){ srs[d.star]?removeDeck(d.star):addDeck(d.star); t.classList.toggle("on",!!srs[d.star]); t.textContent=srs[d.star]?"★":"☆"; return; }
+  if(d.rev!==undefined){ const s=D.shown[+d.rev]; s.rev=true; speak(s.ln[1]); drawDialog(); return; }
+  if(d.dopt!==undefined){ pickDialog(+d.dopt,t); return; }
+  if(d.qopt!==undefined){ pickQuiz(+d.qopt); return; }
+  if(d.cr!==undefined){ rateCard(+d.cr); return; }
+  if(d.gram!==undefined){ const g=GRAM[S.lang][+d.gram]; if(learnedCount()<g.need){ toast("🔒 ab "+g.need+" Wörtern ("+learnedCount()+"/"+g.need+")"); return; } startGram(+d.gram); return; }
+  if(d.game){ const g=GAMES.find(x=>x.id===d.game); if(learnedCount()<g.need){ toast("🔒 ab "+g.need+" Wörtern ("+learnedCount()+"/"+g.need+")"); return; } startGame(d.game); return; }
+  if(d.mc!==undefined){ memPick(+d.mc); return; }
+  if(d.xp!==undefined){ xwPick(+d.xp); return; }
+  if(d.xw!==undefined){ if(!G.words[+d.xw].done){ xwSelect(+d.xw); render(); } return; }
+  if(d.xc!==undefined){ if(!G.words[+d.xc].done){ xwSelect(+d.xc); render(); } return; }
+  if(d.ch!==undefined){ const ta=$("#aiIn"); if(ta){ const s=ta.selectionStart??ta.value.length, e=ta.selectionEnd??s; ta.value=ta.value.slice(0,s)+d.ch+ta.value.slice(e); ta.focus(); try{ ta.setSelectionRange(s+d.ch.length,s+d.ch.length); }catch(_){} } return; }
+  if(d.sl!==undefined){ G.built.push(+d.sl); G.marks=null; render(); return; }
+  if(d.sb!==undefined){ if(!G.ok){ G.built=G.built.filter(x=>x!==+d.sb); G.marks=null; render(); } return; }
+  if(d.hk!==undefined){ hangGuess(d.hk); return; }
+  if(d.gopt!==undefined){ pickGram(+d.gopt); return; }
+  if(d.lo!==undefined){ pickLearn(+d.lo); return; }
+  if(d.lr!==undefined){ rateLearn(+d.lr); return; }
+  if(d.fach!==undefined){ if(S.view!=="fach") S.fachBack=S.view; S.fach=+d.fach; S.view="fach"; render(); window.scrollTo(0,0); return; }
+  if(d.wset){ settings.wset=d.wset; store.set("settings",settings); render(); return; }
+  if(d.wcount){ settings.wcount=+d.wcount; store.set("settings",settings); render(); return; }
+  if(d.aide!==undefined){ C.msgs[+d.aide].showDe=true; drawAI(); return; }
+  if(d.bt!==undefined&&B){ B.built.push(+d.bt); B.marks=null; B.redraw(); return; }
+  if(d.bb!==undefined&&B){ if(!B.ok){ B.built=B.built.filter(id=>id!==+d.bb); B.marks=null; B.redraw(); } return; }
+  if(d.aw!==undefined){ const ta=$("#aiIn"), w=C.tw[+d.aw]; if(ta&&w){ ta.value=(ta.value.trim()?ta.value.trim()+" ":"")+w; } return; }
+  if(d.sug!==undefined){ const s=C.sugs[+d.sug]; const ta=$("#aiIn"); if(ta&&s){ ta.value=s.t; ta.focus(); } return; }
+  if(d.reveal!==undefined&&t.classList.contains("hidden-tgt")){ t.classList.remove("hidden-tgt"); return; }
+  switch(d.act){
+    case "dlgDe": D.showDe=!D.showDe; drawDialog(); break;
+    case "listen": settings.listen=!settings.listen; store.set("settings",settings); drawDialog(); break;
+    case "dlgRestart": startDialog(); break;
+    case "build": settings.build=!settings.build; store.set("settings",settings); drawDialog(); break;
+    case "bUndo": if(B){ B.built.pop(); B.marks=null; B.redraw(); } break;
+    case "bReset": if(B){ B.built=[]; B.marks=null; B.redraw(); } break;
+    case "bHint": if(B) bHint(); break;
+    case "bCheck": if(B) bCheck(); break;
+    case "bSay": if(B) speak(B.t); break;
+    case "bNext": if(B&&B.ok) B.onOk(); break;
+    case "pRestart": startPractice(); break;
+    case "aiTiles": settings.aiTiles=true; store.set("settings",settings); drawAI(); break;
+    case "aiSugs": settings.aiTiles=false; store.set("settings",settings); drawAI(); break;
+    case "goalLearn": { const ks=pathKeys(settings.wcount||5); if(ks.length) startLearn(ks,"home"); break; }
+    case "scnLearn": { const ks=sceneState(S.scn).missing.slice(0,10); if(ks.length) startLearn(ks,"scn"); break; }
+    case "gAgain": startGame(G.type); break;
+    case "xUndo": xwUndo(); break;
+    case "xReset": xwReset(); break;
+    case "xCheck": xwCheck(); break;
+    case "sUndo": G.built.pop(); G.marks=null; render(); break;
+    case "sReset": G.built=[]; G.marks=null; render(); break;
+    case "sCheck": scrCheck(); break;
+    case "sNext": G.i++; setupScr(); render(); break;
+    case "hNext": G.i++; setupHang(); render(); break;
+    case "grStart": GR.step="ex"; GR.q=0; GR.ans=null; GR.right=0; render(); break;
+    case "grTable": GR.step="table"; render(); break;
+    case "grAgain": startGram(GR.i); GR.step="ex"; render(); break;
+    case "grNext": GR.q++; GR.ans=null; render(); break;
+    case "wNew": if((settings.wset||"pfad")==="pfad"){ const ks=pathKeys(settings.wcount||5); if(ks.length) startLearn(ks); break; } { const s=wSets().find(x=>x.id===settings.wset)||wSets()[0]; let ks=wKeys().slice(s.a,s.b).filter(k=>!srs[k]); if(!ks.length) ks=wKeys().filter(k=>!srs[k]); if(ks.length) startLearn(ks.slice(0,settings.wcount||5)); break; }
+    case "wDue": startCards(dueKeys(),"Fällige Karten","words"); break;
+    case "wMix": startCards(mixKeys(deckKeys()),"Gemischt aus allen Fächern","words"); break;
+    case "fachLearn": startCards(shuffle(deckKeys().filter(k=>fachOf(k)===S.fach)),"Fach "+S.fach,"fach"); break;
+    case "revStart": startCards(dueKeys(),"Fällige Karten","review"); break;
+    case "lsNext": nextStep(); break;
+    case "lsFlip": LS.flip=true; render(); speak(byKey(LS.steps[LS.i].k).t); break;
+    case "cFlip": RV.flip=true; render(); if(rvFront(RV.queue[0])==="de") speak(byKey(RV.queue[0]).t); break;
+    case "quizRestart": startQuiz(); break;
+    case "quizNext": Q.i++; drawQuiz(); maybeSpeakQ(); window.scrollTo({top:0,behavior:"smooth"}); break;
+    case "aiStart": aiTurn(); break;
+    case "aiReset": C={id:C.id,msgs:[],busy:false,sugs:[],err:""}; drawAI(); break;
+    case "testVoice": speak(allPhrases()[0].t); break;
+    case "resetLang": confirmBox(`Fortschritt für ${lng().name} wirklich löschen?`,()=>{ Object.keys(srs).forEach(k=>{ if(k.startsWith(S.lang+"|")) delete srs[k]; }); saveSrs(); render(); }); break;
+  }
+});
+document.addEventListener("submit",e=>{
+  if(e.target.id!=="aiForm") return; e.preventDefault();
+  const ta=$("#aiIn"); const v=(ta.value||"").trim(); if(!v||C.busy) return;
+  C.msgs.push({who:"me",t:v}); aiTurn();
+});
+document.addEventListener("input",e=>{
+  const k=e.target.dataset.set; if(!k) return;
+  if(k==="rate"){ settings.rate=+e.target.value; e.target.previousElementSibling.querySelector("span").textContent=Math.round(settings.rate*100)+" %"; }
+  store.set("settings",settings);
+});
+document.addEventListener("change",e=>{
+  const fk=e.target.dataset.fsel;
+  if(fk){ const v=+e.target.value; v<0?removeDeck(fk):setFach(fk,v); const kw=$("#kastenWrap"); if(kw) kw.innerHTML=kastenHTML(deckKeys()); if(S.view==="fach"||S.view==="review") render(); return; }
+  const k=e.target.dataset.set; if(!k||k==="rate") return;
+  settings[k]=e.target.checked; store.set("settings",settings);
+});
+
+try{ for(const lc of Object.keys(WORDS)){ const keep=S.lang; S.lang=lc; checkUnlocks(true); S.lang=keep; } }catch(e){}
+render();
+</script>
+</body>
+</html>

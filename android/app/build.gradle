@@ -1,0 +1,75 @@
+plugins {
+    id "com.android.application"
+}
+
+// Die App selbst ist ../smalltalk-trainer.html (dieselbe Datei wie das claude.ai-Artifact).
+// Beim Bauen wird sie als index.html in die APK kopiert: Schrift lokal statt Google Fonts,
+// dazu android-bridge.js (Sprachausgabe + Zurück-Taste).
+abstract class PrepareWeb extends DefaultTask {
+    @InputFile abstract RegularFileProperty getSrc()
+    @OutputDirectory abstract DirectoryProperty getOutDir()
+
+    @TaskAction
+    void run() {
+        def html = src.get().asFile.getText("UTF-8")
+        def fontLinks = ~/(?s)<link rel="preconnect" href="https:\/\/fonts\.googleapis\.com">\s*<link href="https:\/\/fonts\.googleapis\.com\/css2[^"]*" rel="stylesheet">/
+        if (!(html =~ fontLinks).find()) throw new GradleException("Google-Fonts-Link in smalltalk-trainer.html nicht gefunden")
+        html = html.replaceFirst(fontLinks, '<link href="fonts/nunito.css" rel="stylesheet">')
+        def charset = '<meta charset="utf-8">'
+        if (!html.contains(charset)) throw new GradleException("<meta charset> nicht gefunden")
+        html = html.replaceFirst(java.util.regex.Pattern.quote(charset),
+                charset + '\n<script src="android-bridge.js"></script>')
+        def dir = outDir.get().asFile
+        dir.mkdirs()
+        new File(dir, "index.html").setText(html, "UTF-8")
+    }
+}
+
+def prepareWeb = tasks.register("prepareWeb", PrepareWeb) {
+    src.set(rootProject.file("../smalltalk-trainer.html"))
+}
+
+android {
+    namespace "app.smalltalktrainer"
+    compileSdk 35
+
+    defaultConfig {
+        applicationId "app.smalltalktrainer"
+        minSdk 24
+        targetSdk 35
+        versionCode((project.findProperty("versionCode") ?: "1") as int)
+        versionName(project.findProperty("versionName") ?: "1.0")
+    }
+
+    // Signatur: Keystore kommt aus GitHub-Secrets (siehe Workflow). Ohne Secret wird mit dem
+    // Debug-Schlüssel signiert – installierbar, aber Updates lassen sich dann nicht drüberinstallieren.
+    def ksFile = System.getenv("SIGNING_STORE_FILE")
+    signingConfigs {
+        if (ksFile) {
+            release {
+                storeFile file(ksFile)
+                storePassword System.getenv("SIGNING_STORE_PASSWORD")
+                keyAlias System.getenv("SIGNING_KEY_ALIAS") ?: "smalltalk"
+                keyPassword System.getenv("SIGNING_KEY_PASSWORD") ?: System.getenv("SIGNING_STORE_PASSWORD")
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            signingConfig ksFile ? signingConfigs.release : signingConfigs.debug
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+
+androidComponents {
+    onVariants(selector().all()) { variant ->
+        variant.sources.assets?.addGeneratedSourceDirectory(prepareWeb, { it.outDir })
+    }
+}

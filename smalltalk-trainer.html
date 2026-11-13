@@ -1296,7 +1296,7 @@ function startLearn(keys,back="words"){
     ch.forEach(k=>steps.push({k,ty:"intro"})); shuffle(ch).forEach(k=>steps.push({k,ty:"mcDE"})); shuffle(ch).forEach(k=>steps.push({k,ty:"mcT"})); }
   shuffle(keys).forEach(k=>steps.push({k,ty:"listen"}));
   shuffle(keys).forEach(k=>steps.push({k,ty:"recall"}));
-  LS={back,keys,steps,i:0,ans:null,flip:false,opts:null,res:{},again:{}};
+  LS={back,keys,steps,i:0,ans:null,flip:false,opts:null,res:{}};
   S.view="wlearn"; prepStep(); render(); window.scrollTo(0,0);
 }
 function wordOpts(key){
@@ -1341,7 +1341,6 @@ function pickLearn(i){
 }
 function rateLearn(r){
   const s=LS.steps[LS.i]; setFach(s.k,[0,1,4][r]); LS.res[s.k]=r;
-  if(r===0&&!LS.again[s.k]){ LS.again[s.k]=1; LS.steps.push({k:s.k,ty:"mcT"},{k:s.k,ty:"recall"}); }
   nextStep();
 }
 
@@ -1359,7 +1358,7 @@ function renderCards(app){
   const backLbl={words:"Wörter",fach:"Fach "+S.fach,review:"Wiederholen"}[RV.back]||"Zurück";
   let h=`<button class="back" data-go="${RV.back}">‹ ${esc(backLbl)}</button>`;
   if(!RV.queue.length){
-    h+=`<div class="card done"><div class="big">✅</div><h3>Durchgang geschafft!</h3><p class="muted">Kann ich: ${RV.stats[2]} · Wusste ich: ${RV.stats[1]} · Nochmal: ${RV.stats[0]}</p><div class="rowbtn"><button class="btn" data-go="${RV.back}">Fertig</button></div></div>`;
+    h+=`<div class="card done"><div class="big">✅</div><h3>Durchgang geschafft!</h3><p class="muted">Kann ich: ${RV.stats[2]} · Wusste ich: ${RV.stats[1]} · Wusste ich nicht: ${RV.stats[0]} → Fach 0</p><div class="rowbtn"><button class="btn" data-go="${RV.back}">Fertig</button></div></div>`;
     app.innerHTML=h; return;
   }
   const k=RV.queue[0], p=byKey(k), b=fachOf(k), front=rvFront(k), say=`<button class="ib" style="margin:8px auto 0" data-say="${k}">🔊</button>`;
@@ -1369,7 +1368,7 @@ function renderCards(app){
   h+=`</div>`+(RV.flip?rate3HTML("cr",b):`<div class="rowbtn"><button class="btn" data-act="cFlip">Aufdecken</button></div>`);
   app.innerHTML=h;
 }
-function rateCard(r){ const k=RV.queue.shift(); grade(k,r); RV.stats[r]++; if(r===0) RV.queue.push(k); RV.flip=false; render(); autoSpeakRV(); }
+function rateCard(r){ const k=RV.queue.shift(); grade(k,r); RV.stats[r]++; RV.flip=false; render(); autoSpeakRV(); }
 
 /* --- Satzbau mit Wort-Bausteinen --- */
 const noSpace=lc=>lc==="ja"||lc==="th";

@@ -1302,8 +1302,13 @@ function startLearn(keys,back="words"){
 function wordOpts(key){
   const p=byKey(key), lc=key.split("|")[0], me=+key.split("|")[2], list=WORDS[lc];
   const ok=i=>i!==me&&list[i][1]!==p.de&&list[i][0]!==p.t;
-  const same=shuffle(list.map((_,i)=>i).filter(i=>ok(i)&&list[i][2]===p.g)), other=shuffle(list.map((_,i)=>i).filter(i=>ok(i)&&list[i][2]!==p.g));
-  return shuffle([p,...[...same.slice(0,2),...other].slice(0,3).map(i=>byKey(lc+"|w|"+i))]);
+  // Ablenker aus bekannten Wörtern (diese Runde + Karteikasten), damit Ausschlussverfahren nicht hilft
+  const idx=k=>+k.split("|")[2], grp=a=>[...a.filter(i=>list[i][2]===p.g),...a.filter(i=>list[i][2]!==p.g)];
+  const sess=grp(shuffle((LS?LS.keys:[]).map(idx).filter(ok)));
+  const deck=grp(shuffle(Object.keys(srs).filter(k=>k.startsWith(lc+"|w|")).map(idx).filter(i=>list[i]&&ok(i)&&!sess.includes(i))));
+  const rest=grp(shuffle(list.map((_,i)=>i).filter(i=>ok(i)&&!sess.includes(i)&&!deck.includes(i))));
+  const pick=[...sess.slice(0,2),...deck,...sess.slice(2),...rest].filter((i,j,a)=>a.findIndex(x=>list[x][1]===list[i][1]||list[x][0]===list[i][0])===j).slice(0,3);
+  return shuffle([p,...pick.map(i=>byKey(lc+"|w|"+i))]);
 }
 function prepStep(){ const s=LS.steps[LS.i]; LS.ans=null; LS.flip=false; LS.opts=s&&["mcDE","mcT","listen"].includes(s.ty)?wordOpts(s.k):null;
   if(s&&settings.auto&&["intro","mcDE","listen"].includes(s.ty)) setTimeout(()=>speak(byKey(s.k).t),150); }

@@ -21,6 +21,7 @@ import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.FrameLayout;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -33,6 +34,7 @@ public class MainActivity extends Activity {
     private static final String START_URL = "file:///android_asset/index.html";
 
     private WebView web;
+    private FrameLayout root;
     private TextToSpeech tts;
     private volatile boolean ttsReady = false;
     private final Handler main = new Handler(Looper.getMainLooper());
@@ -49,7 +51,12 @@ public class MainActivity extends Activity {
 
         web = new WebView(this);
         web.setBackgroundColor(bg);
-        setContentView(web);
+        // WebView ignoriert eigenes Padding – deshalb ein Rahmen, der die Systemleisten freihält
+        root = new FrameLayout(this);
+        root.setBackgroundColor(bg);
+        root.addView(web, new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
+        setContentView(root);
         setupSystemBars(bg, bar, dark);
 
         WebSettings s = web.getSettings();
@@ -92,7 +99,7 @@ public class MainActivity extends Activity {
         }
         decor.setBackgroundColor(bg);
         if (Build.VERSION.SDK_INT >= 30) {
-            web.setOnApplyWindowInsetsListener((v, insets) -> {
+            root.setOnApplyWindowInsetsListener((v, insets) -> {
                 android.graphics.Insets i = insets.getInsets(
                         WindowInsets.Type.systemBars() | WindowInsets.Type.displayCutout() | WindowInsets.Type.ime());
                 v.setPadding(i.left, i.top, i.right, i.bottom);

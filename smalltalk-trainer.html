@@ -1377,7 +1377,17 @@ function rateCard(r){ const k=RV.queue.shift(); grade(k,r); RV.stats[r]++; RV.fl
 
 /* --- Satzbau mit Wort-Bausteinen --- */
 const noSpace=lc=>lc==="ja"||lc==="th";
-function toks(t,r,lc=S.lang){ const src=noSpace(lc)&&r?r:t; return src.split(/\s+/).map(w=>w.replace(/^[¡¿"«(]+|[.,!?;:…"»)。、！？]+$/g,"")).filter(w=>w&&w!=="/"); }
+// Satzanfänge klein schreiben (sonst verrät die Großschreibung das erste Wort); Eigennamen bleiben groß
+function rawToks(src){ const out=[]; let start=true;
+  src.split(/\s+/).forEach(raw=>{ const w=raw.replace(/^[¡¿"«(]+|[.,!?;:…"»)。、！？]+$/g,""); if(w&&w!=="/"){ out.push({w,start}); start=false; } if(/[.!?…。！？]["»)]*$/.test(raw)) start=true; });
+  return out; }
+const capCache={};
+function capWords(lc){ if(capCache[lc]) return capCache[lc]; const set=new Set(), l=L[lc];
+  const add=(t,r)=>{ const src=noSpace(lc)&&r?r:t; rawToks(src).forEach(x=>{ if(!x.start&&x.w[0]!==x.w[0].toLowerCase()) set.add(x.w); }); };
+  l.order.forEach(id=>{ (l.s[id].ph||[]).forEach(p=>add(p[0],p[2])); (l.s[id].dlg||[]).forEach(x=>add(x[1],x[3])); });
+  return capCache[lc]=set; }
+function toks(t,r,lc=S.lang){ const src=noSpace(lc)&&r?r:t, cap=L[lc]?capWords(lc):new Set();
+  return rawToks(src).map(x=>x.start&&!cap.has(x.w)?x.w.charAt(0).toLowerCase()+x.w.slice(1):x.w); }
 const norm=w=>w.toLowerCase().replace(/[’']/g,"'");
 function wordPool(lc=S.lang){ const l=L[lc], s=new Set();
   l.order.forEach(id=>{ (l.s[id].ph||[]).forEach(p=>toks(p[0],p[2],lc).forEach(w=>s.add(w))); (l.s[id].dlg||[]).forEach(x=>toks(x[1],x[3],lc).forEach(w=>s.add(w))); });

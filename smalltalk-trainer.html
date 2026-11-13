@@ -1789,10 +1789,24 @@ function bCheck(){
   B.redraw();
   if(!B.ok){ const f=$("#field"); if(f){ f.classList.add("shake"); setTimeout(()=>f.classList.remove("shake"),400); } }
 }
+// 💡 verrät ein Wort → dieses Wort im Karteikasten mindestens ein Fach runter (einmal pro Satz)
+const widxCache={};
+function wordIdxMap(lc){ if(widxCache[lc]) return widxCache[lc]; const m=new Map();
+  (WORDS[lc]||[]).forEach((w,i)=>w[0].split(/\s*\/\s*/).forEach(a=>{ const k=a.split(/\s+/).map(x=>norm(x.replace(/^[¡¿"«(]+|[.,!?;:…"»)]+$/g,""))).filter(Boolean).join(" "); if(k&&!m.has(k)) m.set(k,i); }));
+  return widxCache[lc]=m; }
+function hintDemote(k){
+  const lc=S.lang; if(!WORDS[lc]) return; const words=toks(B.t,B.r), m=wordIdxMap(lc);
+  let i=m.get(norm(words[k]));
+  if(i===undefined) for(let a=Math.max(0,k-2);a<=k&&i===undefined;a++) for(let n=3;n>=2;n--){ if(a+n>k&&a+n<=words.length){ const j=m.get(words.slice(a,a+n).map(norm).join(" ")); if(j!==undefined){ i=j; break; } } }
+  if(i===undefined) return;
+  const key=lc+"|w|"+i; B.hinted=B.hinted||{}; if(B.hinted[key]) return; B.hinted[key]=1;
+  const b=srs[key]?srs[key].b:0; setFach(key,Math.max(0,b-1));
+  toast("💡 "+WORDS[lc][i][0]+" → Fach "+Math.max(0,b-1));
+}
 function bHint(){
   const target=bTarget(); let k=0; while(k<B.built.length&&k<target.length&&norm(B.tiles[B.built[k]].w)===target[k]) k++;
   B.built=B.built.slice(0,k); B.marks=null; B.tries++;
-  if(k<target.length){ const used=new Set(B.built); const t=B.tiles.find(x=>!used.has(x.id)&&norm(x.w)===target[k]); if(t) B.built.push(t.id); }
+  if(k<target.length){ const used=new Set(B.built); const t=B.tiles.find(x=>!used.has(x.id)&&norm(x.w)===target[k]); if(t) B.built.push(t.id); hintDemote(k); }
   B.redraw();
 }
 
